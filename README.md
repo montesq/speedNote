@@ -12,7 +12,7 @@ classe et devoir.
   mot de passe maître. Cette clé n'est jamais écrite sur disque : sans le mot
   de passe, le fichier est illisible.
 - **Le mot de passe maître doit être saisi à chaque ouverture** de
-  l'application (au démarrage du service, et de nouveau après 20 minutes
+  l'application (à chaque démarrage, et de nouveau après 20 minutes
   d'inactivité ou un clic sur "Verrouiller").
 - **Ce mot de passe n'est récupérable par personne.** S'il est oublié, les
   données sont définitivement perdues — notez-le dans un endroit sûr (par
@@ -30,25 +30,16 @@ python3 -m venv venv
 venv/bin/pip install -r requirements.txt
 ```
 
-## Démarrage manuel (test, sans service)
-
-```bash
-venv/bin/python run.py
-```
-
-Puis ouvrir http://127.0.0.1:8420 dans un navigateur sur cet ordinateur.
-Au premier lancement, l'application demande de créer le mot de passe maître.
-
 ## Utilisation au quotidien (raccourcis)
 
-L'application tourne comme un service systemd utilisateur, **volontairement
-désactivé au démarrage de l'ordinateur** : elle ne se lance jamais toute
-seule, il faut l'ouvrir explicitement. Deux raccourcis sont installés pour
-ça, dans le menu d'applications et sur le Bureau :
+SpeedNote fonctionne comme une application de bureau classique : pas de
+service système, pas de démarrage automatique avec l'ordinateur. Elle ne se
+lance que lorsqu'on l'ouvre explicitement. Deux raccourcis sont installés
+pour ça, dans le menu d'applications et sur le Bureau :
 
-- **SpeedNote** — démarre l'application et ouvre automatiquement le
-  navigateur sur http://127.0.0.1:8420. Il ne reste plus qu'à saisir le mot
-  de passe maître.
+- **SpeedNote** — démarre l'application (si elle n'est pas déjà lancée) et
+  ouvre automatiquement le navigateur sur http://127.0.0.1:8420. Il ne reste
+  plus qu'à saisir le mot de passe maître.
 - **Arrêter SpeedNote** — arrête l'application (les données restent, déjà
   chiffrées, sur le disque).
 
@@ -56,28 +47,25 @@ Si les icônes du Bureau demandent une confirmation au premier clic
 (« Autoriser le lancement »), c'est normal la toute première fois — un clic
 droit puis « Autoriser le lancement » suffit ensuite.
 
-### Réinstaller les raccourcis (si besoin)
+### Démarrage manuel en ligne de commande (équivalent aux raccourcis)
+
+```bash
+bin/demarrer-speednote.sh   # démarre l'application et ouvre le navigateur
+bin/arreter-speednote.sh    # arrête l'application
+```
+
+Le PID du processus et ses logs sont dans `run/` (créé automatiquement, non
+versionné).
+
+### Réinstaller les raccourcis du Bureau (si besoin)
 
 ```bash
 cd ~/Dev/SpeedNote
-mkdir -p ~/.config/systemd/user
-cp speednote.service ~/.config/systemd/user/
-systemctl --user daemon-reload
-
 cp speednote-demarrer.desktop speednote-arreter.desktop ~/.local/share/applications/
 cp speednote-demarrer.desktop speednote-arreter.desktop ~/Bureau/
 chmod +x ~/Bureau/speednote-*.desktop ~/.local/share/applications/speednote-*.desktop
 gio set ~/Bureau/speednote-demarrer.desktop "metadata::trusted" true
 gio set ~/Bureau/speednote-arreter.desktop "metadata::trusted" true
-```
-
-### Commandes en ligne de commande (équivalentes aux raccourcis)
-
-```bash
-systemctl --user start speednote.service      # démarrer l'application
-systemctl --user stop speednote.service       # arrêter l'application
-systemctl --user status speednote.service     # état du service
-journalctl --user -u speednote -f             # logs en direct
 ```
 
 ## Sauvegardes
