@@ -50,13 +50,23 @@ def carnet(classe_id):
     if periode not in periodes_disponibles:
         periode = periode_defaut
 
+    type_filtre = request.args.get("type", "")
+    if type_filtre not in types_devoir.TYPES:
+        type_filtre = ""
+
     eleves = conn.execute(
         "SELECT * FROM eleve WHERE classe_id = ? ORDER BY nom, prenom", (classe_id,)
     ).fetchall()
-    devoirs = conn.execute(
-        "SELECT * FROM devoir WHERE classe_id = ? AND periode = ? ORDER BY date_devoir, id",
-        (classe_id, periode),
-    ).fetchall()
+    if type_filtre:
+        devoirs = conn.execute(
+            "SELECT * FROM devoir WHERE classe_id = ? AND periode = ? AND type = ? ORDER BY date_devoir, id",
+            (classe_id, periode, type_filtre),
+        ).fetchall()
+    else:
+        devoirs = conn.execute(
+            "SELECT * FROM devoir WHERE classe_id = ? AND periode = ? ORDER BY date_devoir, id",
+            (classe_id, periode),
+        ).fetchall()
 
     notes_map = {}
     if devoirs:
@@ -122,6 +132,7 @@ def carnet(classe_id):
         periodes_disponibles=periodes_disponibles,
         periode=periode,
         periode_defaut=periode_defaut,
+        type_filtre=type_filtre,
         eleves=eleves,
         devoirs=devoirs,
         lignes=lignes,
