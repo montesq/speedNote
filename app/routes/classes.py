@@ -63,19 +63,26 @@ def carnet(classe_id):
         devoir_ids = [d["id"] for d in devoirs]
         placeholders = ",".join("?" * len(devoir_ids))
         rows = conn.execute(
-            f"SELECT devoir_id, eleve_id, valeur FROM note WHERE devoir_id IN ({placeholders})",
+            f"SELECT devoir_id, eleve_id, valeur, appreciation FROM note WHERE devoir_id IN ({placeholders})",
             devoir_ids,
         ).fetchall()
         for row in rows:
-            notes_map[(row["devoir_id"], row["eleve_id"])] = row["valeur"]
+            notes_map[(row["devoir_id"], row["eleve_id"])] = row
 
     def note_cellule(devoir, eleve_id):
-        valeur = notes_map.get((devoir["id"], eleve_id))
+        entry = notes_map.get((devoir["id"], eleve_id))
+        valeur = entry["valeur"] if entry else None
+        appreciation = entry["appreciation"] if entry else None
         css = ""
         if valeur is not None and devoir["bareme"]:
             ratio = valeur / devoir["bareme"]
             css = "note-bonne" if ratio >= 0.7 else "note-moyenne" if ratio >= 0.5 else "note-faible"
-        return {"valeur": valeur, "css": css}
+        return {
+            "valeur": valeur,
+            "appreciation": appreciation,
+            "css": css,
+            "devoir_titre": devoir["titre"],
+        }
 
     def moyenne_eleve(notes):
         """Moyenne de l'élève sur la période, notes normalisées sur 20."""
@@ -93,7 +100,11 @@ def carnet(classe_id):
 
     moyennes_devoirs = []
     for d in devoirs:
-        valeurs = [v for v in (notes_map.get((d["id"], e["id"])) for e in eleves) if v is not None]
+        valeurs = [
+            entry["valeur"]
+            for entry in (notes_map.get((d["id"], e["id"])) for e in eleves)
+            if entry is not None and entry["valeur"] is not None
+        ]
         moyennes_devoirs.append(round(sum(valeurs) / len(valeurs), 2) if valeurs else None)
 
     moyennes_eleves = [ligne["moyenne"] for ligne in lignes if ligne["moyenne"] is not None]

@@ -49,9 +49,29 @@
     <tr>
       <td>{{ ligne.eleve['nom'] }} {{ ligne.eleve['prenom'] }}</td>
       {% for note in ligne.notes %}
-      <td class="{{ note.css }}">{{ note.valeur if note.valeur is not none else '—' }}</td>
+      <td class="{{ note.css }}">
+        {% if note.valeur is not none or note.appreciation %}
+        <button type="button" class="note-comment-link"
+                data-titre="{{ note.devoir_titre }}"
+                data-appreciation="{{ note.appreciation or '' }}">
+          {{ note.valeur if note.valeur is not none else '—' }}
+        </button>
+        {% else %}
+        —
+        {% endif %}
+      </td>
       {% endfor %}
-      <td class="carnet-moyenne">{{ ligne.moyenne if ligne.moyenne is not none else '—' }}</td>
+      <td class="carnet-moyenne">
+        {% if devoirs %}
+        <button type="button" class="note-comment-link moyenne-link"
+                data-eleve-nom="{{ ligne.eleve['nom'] }} {{ ligne.eleve['prenom'] }}"
+                data-comments='{{ ligne.notes|tojson }}'>
+          {{ ligne.moyenne if ligne.moyenne is not none else '—' }}
+        </button>
+        {% else %}
+        —
+        {% endif %}
+      </td>
     </tr>
     {% endfor %}
   </tbody>
@@ -97,7 +117,16 @@
     </div>
   </form>
 </dialog>
+
+<dialog id="modal-commentaire" class="modal">
+  <h2 id="commentaire-titre"></h2>
+  <div id="commentaire-corps"></div>
+  <div class="modal-actions">
+    <button type="button" class="btn-ghost" onclick="document.getElementById('modal-commentaire').close()">Fermer</button>
+  </div>
+</dialog>
 {% endif %}
 
 <script src="{{ url_for('static', filename='modal.js') }}"></script>
+<script src="{{ url_for('static', filename='commentaires.js') }}"></script>
 {% endblock %}

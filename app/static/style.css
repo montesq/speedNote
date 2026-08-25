@@ -306,6 +306,25 @@ table.carnet td.carnet-moyenne, table.carnet th:last-child {
   color: var(--accent-dark);
 }
 
+.note-comment-link {
+  background: none;
+  border: none;
+  box-shadow: none;
+  color: inherit;
+  font: inherit;
+  font-weight: inherit;
+  padding: 0;
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-underline-offset: 3px;
+}
+.note-comment-link:hover { text-decoration-style: solid; transform: none; background: none; }
+
+.commentaire-item { margin-bottom: 1rem; }
+.commentaire-item strong { color: var(--secondary-dark); font-family: var(--font-fun); }
+.commentaire-item p { margin: 0.2rem 0 0; }
+
 dialog.modal-voice { max-width: 32rem; }
 dialog.modal-voice textarea { min-height: 8rem; resize: vertical; }
 
