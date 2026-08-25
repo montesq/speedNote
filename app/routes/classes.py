@@ -77,10 +77,30 @@ def carnet(classe_id):
             css = "note-bonne" if ratio >= 0.7 else "note-moyenne" if ratio >= 0.5 else "note-faible"
         return {"valeur": valeur, "css": css}
 
-    lignes = [
-        {"eleve": e, "notes": [note_cellule(d, e["id"]) for d in devoirs]}
-        for e in eleves
-    ]
+    def moyenne_eleve(notes):
+        """Moyenne de l'élève sur la période, notes normalisées sur 20."""
+        normalisees = [
+            n["valeur"] / d["bareme"] * 20
+            for n, d in zip(notes, devoirs)
+            if n["valeur"] is not None and d["bareme"]
+        ]
+        return round(sum(normalisees) / len(normalisees), 2) if normalisees else None
+
+    lignes = []
+    for e in eleves:
+        notes = [note_cellule(d, e["id"]) for d in devoirs]
+        lignes.append({"eleve": e, "notes": notes, "moyenne": moyenne_eleve(notes)})
+
+    moyennes_devoirs = []
+    for d in devoirs:
+        valeurs = [v for v in (notes_map.get((d["id"], e["id"])) for e in eleves) if v is not None]
+        moyennes_devoirs.append(round(sum(valeurs) / len(valeurs), 2) if valeurs else None)
+
+    moyennes_eleves = [ligne["moyenne"] for ligne in lignes if ligne["moyenne"] is not None]
+    moyenne_classe_periode = (
+        round(sum(moyennes_eleves) / len(moyennes_eleves), 2) if moyennes_eleves else None
+    )
+
     return render_template(
         "classe_carnet.html",
         classe=classe,
@@ -91,6 +111,8 @@ def carnet(classe_id):
         eleves=eleves,
         devoirs=devoirs,
         lignes=lignes,
+        moyennes_devoirs=moyennes_devoirs,
+        moyenne_classe_periode=moyenne_classe_periode,
     )
 
 

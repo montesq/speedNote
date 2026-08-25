@@ -291,12 +291,20 @@ table.carnet th:first-child, table.carnet td:first-child {
   background: var(--panel);
 }
 table.carnet thead th:first-child { background: var(--secondary); }
-table.carnet td.note-bonne, table.carnet td.note-moyenne, table.carnet td.note-faible {
+table.carnet td.note-bonne, table.carnet td.note-moyenne, table.carnet td.note-faible,
+table.carnet tfoot td:not(:first-child) {
   text-align: center;
 }
 table.carnet td.note-bonne { color: var(--good-text); font-weight: 700; }
 table.carnet td.note-moyenne { color: var(--mid-text); font-weight: 700; }
 table.carnet td.note-faible { color: var(--low-text); font-weight: 700; }
+
+table.carnet td.carnet-moyenne, table.carnet th:last-child {
+  text-align: center;
+  background: #fffaf3;
+  font-weight: 700;
+  color: var(--accent-dark);
+}
 
 dialog.modal-voice { max-width: 32rem; }
 dialog.modal-voice textarea { min-height: 8rem; resize: vertical; }

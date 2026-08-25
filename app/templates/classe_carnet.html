@@ -41,6 +41,7 @@
         <br><span class="muted">/{{ d['bareme'] }}</span>
       </th>
       {% endfor %}
+      <th>Moyenne<br><span class="muted">période /20</span></th>
     </tr>
   </thead>
   <tbody>
@@ -50,9 +51,21 @@
       {% for note in ligne.notes %}
       <td class="{{ note.css }}">{{ note.valeur if note.valeur is not none else '—' }}</td>
       {% endfor %}
+      <td class="carnet-moyenne">{{ ligne.moyenne if ligne.moyenne is not none else '—' }}</td>
     </tr>
     {% endfor %}
   </tbody>
+  {% if devoirs %}
+  <tfoot>
+    <tr>
+      <td><strong>Moyenne de la classe</strong></td>
+      {% for d in devoirs %}
+      <td><strong>{{ moyennes_devoirs[loop.index0] if moyennes_devoirs[loop.index0] is not none else '—' }}</strong></td>
+      {% endfor %}
+      <td><strong>{{ moyenne_classe_periode if moyenne_classe_periode is not none else '—' }}</strong></td>
+    </tr>
+  </tfoot>
+  {% endif %}
 </table>
 </div>
 {% if not devoirs %}
