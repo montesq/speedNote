@@ -46,8 +46,9 @@ def carnet(classe_id):
 
     periodes_disponibles = periodes.periodes_pour(classe["systeme_periode"])
     periode_defaut = periodes.periode_par_defaut(conn, classe)
-    periode = request.args.get("periode")
-    if periode not in periodes_disponibles:
+    periode = request.args.get("periode", "")
+    toutes_periodes = periode == "toutes"
+    if not toutes_periodes and periode not in periodes_disponibles:
         periode = periode_defaut
 
     type_filtre = request.args.get("type", "")
@@ -57,16 +58,19 @@ def carnet(classe_id):
     eleves = conn.execute(
         "SELECT * FROM eleve WHERE classe_id = ? ORDER BY nom, prenom", (classe_id,)
     ).fetchall()
+
+    conditions = ["classe_id = ?"]
+    params = [classe_id]
+    if not toutes_periodes:
+        conditions.append("periode = ?")
+        params.append(periode)
     if type_filtre:
-        devoirs = conn.execute(
-            "SELECT * FROM devoir WHERE classe_id = ? AND periode = ? AND type = ? ORDER BY date_devoir, id",
-            (classe_id, periode, type_filtre),
-        ).fetchall()
-    else:
-        devoirs = conn.execute(
-            "SELECT * FROM devoir WHERE classe_id = ? AND periode = ? ORDER BY date_devoir, id",
-            (classe_id, periode),
-        ).fetchall()
+        conditions.append("type = ?")
+        params.append(type_filtre)
+    devoirs = conn.execute(
+        f"SELECT * FROM devoir WHERE {' AND '.join(conditions)} ORDER BY periode, date_devoir, id",
+        params,
+    ).fetchall()
 
     notes_map = {}
     if devoirs:
@@ -132,6 +136,7 @@ def carnet(classe_id):
         periodes_disponibles=periodes_disponibles,
         periode=periode,
         periode_defaut=periode_defaut,
+        toutes_periodes=toutes_periodes,
         type_filtre=type_filtre,
         eleves=eleves,
         devoirs=devoirs,

@@ -17,8 +17,9 @@
     Période
     <select class="classe-select" id="periode-select" onchange="naviguerFiltres()">
       {% for p in periodes_disponibles %}
-      <option value="{{ p }}" {% if p == periode %}selected{% endif %}>{{ p }}</option>
+      <option value="{{ p }}" {% if p == periode and not toutes_periodes %}selected{% endif %}>{{ p }}</option>
       {% endfor %}
+      <option value="toutes" {% if toutes_periodes %}selected{% endif %}>📆 Toute l'année</option>
     </select>
   </label>
   <label class="classe-select-label">
@@ -61,7 +62,7 @@
         <br><span class="muted">coef. {{ d['coefficient']|int if d['coefficient'] == d['coefficient']|int else d['coefficient'] }}</span>
       </th>
       {% endfor %}
-      <th>Moyenne<br><span class="muted">période /20</span></th>
+      <th>Moyenne<br><span class="muted">{{ "année" if toutes_periodes else "période" }} /20</span></th>
     </tr>
   </thead>
   <tbody>
@@ -109,7 +110,7 @@
 </table>
 </div>
 {% if not devoirs %}
-<p class="empty">📝 Aucun devoir{% if type_filtre %} de type « {{ type_filtre }} »{% endif %} pour la période {{ periode }} pour le moment.</p>
+<p class="empty">📝 Aucun devoir{% if type_filtre %} de type « {{ type_filtre }} »{% endif %} {{ "pour cette classe" if toutes_periodes else "pour la période " ~ periode }} pour le moment.</p>
 {% endif %}
 
 <dialog id="modal-devoir" class="modal">
