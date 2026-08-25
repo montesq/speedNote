@@ -38,5 +38,7 @@ CREATE TABLE note (
     eleve_id INTEGER NOT NULL REFERENCES eleve(id) ON DELETE CASCADE,
     valeur REAL,
     appreciation TEXT,
+    cree_le TEXT NOT NULL DEFAULT (datetime('now')),
+    modifie_le TEXT NOT NULL DEFAULT (datetime('now')),
     UNIQUE(devoir_id, eleve_id)
 );

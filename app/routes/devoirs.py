@@ -233,10 +233,11 @@ def enregistrer_note(devoir_id):
                     valeur = None
             conn.execute(
                 """
-                INSERT INTO note (devoir_id, eleve_id, valeur, appreciation)
-                VALUES (?, ?, ?, ?)
+                INSERT INTO note (devoir_id, eleve_id, valeur, appreciation, cree_le, modifie_le)
+                VALUES (?, ?, ?, ?, datetime('now'), datetime('now'))
                 ON CONFLICT(devoir_id, eleve_id)
-                DO UPDATE SET valeur = excluded.valeur, appreciation = excluded.appreciation
+                DO UPDATE SET valeur = excluded.valeur, appreciation = excluded.appreciation,
+                              modifie_le = datetime('now')
                 """,
                 (devoir_id, eleve_id, valeur, appreciation or None),
             )
