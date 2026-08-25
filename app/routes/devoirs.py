@@ -26,39 +26,12 @@ def creer(classe_id):
     return redirect(url_for("classes.carnet", classe_id=classe_id))
 
 
-@bp.route("/devoirs/<int:devoir_id>", methods=["GET", "POST"])
+@bp.route("/devoirs/<int:devoir_id>")
 def saisie(devoir_id):
     conn = store.get_conn()
     devoir = conn.execute("SELECT * FROM devoir WHERE id = ?", (devoir_id,)).fetchone()
     if devoir is None:
         return redirect(url_for("annees.liste"))
-
-    if request.method == "POST":
-        eleves = conn.execute(
-            "SELECT id FROM eleve WHERE classe_id = ?", (devoir["classe_id"],)
-        ).fetchall()
-        for eleve in eleves:
-            eid = eleve["id"]
-            valeur_raw = request.form.get(f"note_{eid}", "").strip().replace(",", ".")
-            appreciation = request.form.get(f"app_{eid}", "").strip()
-            valeur = None
-            if valeur_raw:
-                try:
-                    valeur = float(valeur_raw)
-                except ValueError:
-                    valeur = None
-            conn.execute(
-                """
-                INSERT INTO note (devoir_id, eleve_id, valeur, appreciation)
-                VALUES (?, ?, ?, ?)
-                ON CONFLICT(devoir_id, eleve_id)
-                DO UPDATE SET valeur = excluded.valeur, appreciation = excluded.appreciation
-                """,
-                (devoir_id, eid, valeur, appreciation or None),
-            )
-        conn.commit()
-        store.save()
-        return redirect(url_for("devoirs.saisie", devoir_id=devoir_id))
 
     classe = conn.execute(
         "SELECT * FROM classe WHERE id = ?", (devoir["classe_id"],)
@@ -74,7 +47,13 @@ def saisie(devoir_id):
         """,
         (devoir_id, devoir["classe_id"]),
     ).fetchall()
-    return render_template("devoir_saisie.html", devoir=devoir, classe=classe, lignes=lignes)
+
+    valeurs = [ligne["valeur"] for ligne in lignes if ligne["valeur"] is not None]
+    moyenne = round(sum(valeurs) / len(valeurs), 2) if valeurs else None
+
+    return render_template(
+        "devoir_saisie.html", devoir=devoir, classe=classe, lignes=lignes, moyenne=moyenne
+    )
 
 
 @bp.route("/devoirs/<int:devoir_id>/transcrire", methods=["POST"])

@@ -1,20 +1,21 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const openBtn = document.getElementById("voice-btn");
-  const dialog = document.getElementById("modal-voice");
-  if (!openBtn || !dialog) return;
+  const dialog = document.getElementById("modal-edit-note");
+  if (!dialog) return;
 
-  const devoirId = openBtn.dataset.devoirId;
+  const devoirId = dialog.dataset.devoirId;
+
   const recordingView = document.getElementById("voice-recording-view");
   const editView = document.getElementById("voice-edit-view");
   const statusEl = document.getElementById("voice-status");
   const transcriptHint = document.getElementById("voice-transcript-hint");
-  const eleveSelect = document.getElementById("voice-eleve-select");
+  const eleveNomEl = document.getElementById("edit-eleve-nom");
+  const eleveIdInput = document.getElementById("edit-eleve-id");
   const valeurInput = document.getElementById("voice-valeur-input");
   const appreciationInput = document.getElementById("voice-appreciation-input");
   const stopBtn = document.getElementById("voice-stop-btn");
   const cancelBtn = document.getElementById("voice-cancel-btn");
   const closeBtn = document.getElementById("voice-close-btn");
-  const redoBtn = document.getElementById("voice-redo-btn");
+  const recordBtn = document.getElementById("voice-record-btn");
 
   let mediaRecorder = null;
   let chunks = [];
@@ -100,20 +101,34 @@ document.addEventListener("DOMContentLoaded", () => {
       const data = await response.json();
       appliquerResultat(data);
     } catch (err) {
-      setStatus("❌ Échec de la transcription : " + err.message, "voice-error");
+      showEditView();
+      transcriptHint.textContent = "❌ Échec de la transcription : " + err.message;
     }
   }
 
   function appliquerResultat(data) {
+    showEditView();
     if (data.erreur) {
-      setStatus("⚠️ " + data.erreur, "voice-error");
+      transcriptHint.textContent = "⚠️ " + data.erreur;
       return;
     }
     transcriptHint.textContent = data.transcript ? `Compris : « ${data.transcript} »` : "";
-    eleveSelect.value = data.eleve_id || "";
-    valeurInput.value = data.valeur !== null && data.valeur !== undefined ? data.valeur : "";
-    appreciationInput.value = data.appreciation || "";
+    if (data.valeur !== null && data.valeur !== undefined) {
+      valeurInput.value = data.valeur;
+    }
+    if (data.appreciation) {
+      appreciationInput.value = data.appreciation;
+    }
+  }
+
+  function ouvrirPopup(btn) {
+    eleveIdInput.value = btn.dataset.eleveId;
+    eleveNomEl.textContent = "✏️ " + btn.dataset.eleveNom;
+    valeurInput.value = btn.dataset.valeur || "";
+    appreciationInput.value = btn.dataset.appreciation || "";
+    transcriptHint.textContent = "";
     showEditView();
+    dialog.showModal();
   }
 
   function closeDialog() {
@@ -121,13 +136,16 @@ document.addEventListener("DOMContentLoaded", () => {
     dialog.close();
   }
 
-  openBtn.addEventListener("click", () => {
-    dialog.showModal();
-    startRecording();
+  document.querySelectorAll(".note-link").forEach((btn) => {
+    btn.addEventListener("click", () => ouvrirPopup(btn));
   });
+
+  recordBtn.addEventListener("click", () => startRecording());
   stopBtn.addEventListener("click", stopRecording);
-  cancelBtn.addEventListener("click", closeDialog);
+  cancelBtn.addEventListener("click", () => {
+    abandonRecording();
+    showEditView();
+  });
   closeBtn.addEventListener("click", closeDialog);
-  redoBtn.addEventListener("click", () => startRecording());
   dialog.addEventListener("close", abandonRecording);
 });

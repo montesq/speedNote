@@ -187,9 +187,27 @@ table.grid th {
 table.grid thead th:first-child { border-top-left-radius: var(--radius); }
 table.grid thead th:last-child { border-top-right-radius: var(--radius); }
 table.grid tbody tr:nth-child(even) { background: #fffaf3; }
-table.grid input { width: 100%; border: 1px solid transparent; background: transparent; border-radius: 6px; }
-table.grid input:focus { border-color: var(--accent); background: #fff; outline: none; }
-.note-input { max-width: 5rem; }
+table.grid tfoot td { border-top: 2px solid var(--secondary); border-bottom: none; font-family: var(--font-fun); }
+
+.note-link {
+  background: none;
+  color: var(--accent-dark);
+  border: 2px solid transparent;
+  border-radius: 8px;
+  padding: 0.2rem 0.5rem;
+  box-shadow: none;
+  font-family: var(--font-fun);
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-underline-offset: 3px;
+}
+.note-link:hover {
+  background: var(--bg);
+  border-color: var(--accent);
+  transform: none;
+  text-decoration-style: solid;
+}
 
 .flash {
   list-style: none;

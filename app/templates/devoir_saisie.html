@@ -5,14 +5,48 @@
 <h1>✏️ {{ devoir['titre'] }}{% if devoir['date_devoir'] %} — {{ devoir['date_devoir'] }}{% endif %}</h1>
 <p>Barème : /{{ devoir['bareme'] }}</p>
 
-{% if lignes %}
-<button type="button" id="voice-btn" class="btn-cta" data-devoir-id="{{ devoir['id'] }}">🎤 Commentaire vocal</button>
+<div class="table-scroll">
+<table class="grid">
+  <thead>
+    <tr><th>Élève</th><th>Note</th><th>Appréciation</th></tr>
+  </thead>
+  <tbody>
+    {% for ligne in lignes %}
+    <tr>
+      <td>{{ ligne['nom'] }} {{ ligne['prenom'] }}</td>
+      <td>
+        <button type="button" class="note-link"
+                data-eleve-id="{{ ligne['eleve_id'] }}"
+                data-eleve-nom="{{ ligne['nom'] }} {{ ligne['prenom'] }}"
+                data-valeur="{{ ligne['valeur'] if ligne['valeur'] is not none else '' }}"
+                data-appreciation="{{ ligne['appreciation'] or '' }}">
+          {{ ligne['valeur'] if ligne['valeur'] is not none else '—' }}
+        </button>
+      </td>
+      <td>{{ ligne['appreciation'] or '—' }}</td>
+    </tr>
+    {% else %}
+    <tr><td colspan="3" class="empty">Aucun élève dans cette classe.</td></tr>
+    {% endfor %}
+  </tbody>
+  {% if lignes %}
+  <tfoot>
+    <tr>
+      <td><strong>Moyenne</strong></td>
+      <td><strong>{{ moyenne if moyenne is not none else '—' }}</strong></td>
+      <td></td>
+    </tr>
+  </tfoot>
+  {% endif %}
+</table>
+</div>
 
-<dialog id="modal-voice" class="modal modal-voice">
-  <div id="voice-recording-view">
-    <h2>🎤 Commentaire vocal</h2>
+{% if lignes %}
+<dialog id="modal-edit-note" class="modal modal-voice" data-devoir-id="{{ devoir['id'] }}">
+  <div id="voice-recording-view" hidden>
+    <h2>🎤 Nouvel enregistrement</h2>
     <p id="voice-status" class="voice-status">
-      <span class="voice-dot"></span>🔴 Enregistrement en cours…
+      <span class="voice-dot"></span>Enregistrement en cours…
     </p>
     <div class="modal-actions">
       <button type="button" class="btn-ghost" id="voice-cancel-btn">Annuler</button>
@@ -21,17 +55,10 @@
   </div>
 
   <form id="voice-edit-view" method="post"
-        action="{{ url_for('devoirs.enregistrer_note', devoir_id=devoir['id']) }}" hidden>
-    <h2>✅ Vérifier avant d'enregistrer</h2>
+        action="{{ url_for('devoirs.enregistrer_note', devoir_id=devoir['id']) }}">
+    <h2 id="edit-eleve-nom">Modifier</h2>
     <p id="voice-transcript-hint" class="muted"></p>
-    <label>Élève
-      <select name="eleve_id" id="voice-eleve-select" required>
-        <option value="">— Choisir un élève —</option>
-        {% for ligne in lignes %}
-        <option value="{{ ligne['eleve_id'] }}">{{ ligne['nom'] }} {{ ligne['prenom'] }}</option>
-        {% endfor %}
-      </select>
-    </label>
+    <input type="hidden" name="eleve_id" id="edit-eleve-id">
     <label>Note
       <input type="text" inputmode="decimal" name="valeur" id="voice-valeur-input">
     </label>
@@ -40,40 +67,12 @@
     </label>
     <div class="modal-actions">
       <button type="button" class="btn-ghost" id="voice-close-btn">Fermer</button>
-      <button type="button" class="btn-ghost" id="voice-redo-btn">🎤 Recommencer</button>
+      <button type="button" class="btn-ghost" id="voice-record-btn">🎤 Réenregistrer</button>
       <button type="submit">💾 Enregistrer</button>
     </div>
   </form>
 </dialog>
 {% endif %}
 
-<form method="post" id="saisie-form">
-  <table class="grid">
-    <thead>
-      <tr><th>Élève</th><th>Note</th><th>Appréciation</th></tr>
-    </thead>
-    <tbody>
-      {% for ligne in lignes %}
-      <tr>
-        <td>{{ ligne['nom'] }} {{ ligne['prenom'] }}</td>
-        <td>
-          <input type="text" inputmode="decimal" class="note-input"
-                 name="note_{{ ligne['eleve_id'] }}"
-                 value="{{ ligne['valeur'] if ligne['valeur'] is not none else '' }}">
-        </td>
-        <td>
-          <input type="text" class="app-input"
-                 name="app_{{ ligne['eleve_id'] }}"
-                 value="{{ ligne['appreciation'] or '' }}">
-        </td>
-      </tr>
-      {% else %}
-      <tr><td colspan="3" class="empty">Aucun élève dans cette classe.</td></tr>
-      {% endfor %}
-    </tbody>
-  </table>
-  <button type="submit">💾 Enregistrer</button>
-</form>
-<script src="{{ url_for('static', filename='saisie.js') }}"></script>
 <script src="{{ url_for('static', filename='voice.js') }}"></script>
 {% endblock %}
