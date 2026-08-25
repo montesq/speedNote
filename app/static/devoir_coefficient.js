@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   let valeurEnregistree = input.value;
 
-  input.addEventListener("blur", async () => {
+  input.addEventListener("change", async () => {
     if (input.value === valeurEnregistree || input.value.trim() === "") {
       input.value = valeurEnregistree;
       return;
