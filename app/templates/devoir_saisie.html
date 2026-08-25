@@ -6,10 +6,45 @@
 <p>Barème : /{{ devoir['bareme'] }}</p>
 
 {% if lignes %}
-<div class="voice-block">
-  <button type="button" id="voice-btn" class="btn-cta" data-devoir-id="{{ devoir['id'] }}">🎤 Commentaire vocal</button>
-  <p id="voice-status" class="voice-status"></p>
-</div>
+<button type="button" id="voice-btn" class="btn-cta" data-devoir-id="{{ devoir['id'] }}">🎤 Commentaire vocal</button>
+
+<dialog id="modal-voice" class="modal modal-voice">
+  <div id="voice-recording-view">
+    <h2>🎤 Commentaire vocal</h2>
+    <p id="voice-status" class="voice-status">
+      <span class="voice-dot"></span>🔴 Enregistrement en cours…
+    </p>
+    <div class="modal-actions">
+      <button type="button" class="btn-ghost" id="voice-cancel-btn">Annuler</button>
+      <button type="button" class="danger" id="voice-stop-btn">⏹ Arrêter</button>
+    </div>
+  </div>
+
+  <form id="voice-edit-view" method="post"
+        action="{{ url_for('devoirs.enregistrer_note', devoir_id=devoir['id']) }}" hidden>
+    <h2>✅ Vérifier avant d'enregistrer</h2>
+    <p id="voice-transcript-hint" class="muted"></p>
+    <label>Élève
+      <select name="eleve_id" id="voice-eleve-select" required>
+        <option value="">— Choisir un élève —</option>
+        {% for ligne in lignes %}
+        <option value="{{ ligne['eleve_id'] }}">{{ ligne['nom'] }} {{ ligne['prenom'] }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>Note
+      <input type="text" inputmode="decimal" name="valeur" id="voice-valeur-input">
+    </label>
+    <label>Commentaire
+      <textarea name="appreciation" id="voice-appreciation-input" rows="6"></textarea>
+    </label>
+    <div class="modal-actions">
+      <button type="button" class="btn-ghost" id="voice-close-btn">Fermer</button>
+      <button type="button" class="btn-ghost" id="voice-redo-btn">🎤 Recommencer</button>
+      <button type="submit">💾 Enregistrer</button>
+    </div>
+  </form>
+</dialog>
 {% endif %}
 
 <form method="post" id="saisie-form">

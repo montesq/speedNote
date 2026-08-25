@@ -278,19 +278,30 @@ table.carnet td.note-bonne { color: var(--good-text); font-weight: 700; }
 table.carnet td.note-moyenne { color: var(--mid-text); font-weight: 700; }
 table.carnet td.note-faible { color: var(--low-text); font-weight: 700; }
 
-.voice-block { display: flex; flex-direction: column; gap: 0.4rem; margin: 1rem 0; }
-#voice-btn.recording {
-  background: var(--danger);
-  box-shadow: 0 3px 0 var(--danger-dark);
-  animation: voice-pulse 1.2s ease-in-out infinite;
+dialog.modal-voice { max-width: 32rem; }
+dialog.modal-voice textarea { min-height: 8rem; resize: vertical; }
+
+.voice-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.5rem 0 0;
+  font-weight: 600;
+  color: var(--text);
+  min-height: 1.4em;
 }
-#voice-btn.recording:hover { background: var(--danger-dark); }
-@keyframes voice-pulse {
-  0%, 100% { box-shadow: 0 3px 0 var(--danger-dark), 0 0 0 0 rgba(230, 57, 70, 0.4); }
-  50% { box-shadow: 0 3px 0 var(--danger-dark), 0 0 0 8px rgba(230, 57, 70, 0); }
-}
-.voice-status { margin: 0; font-weight: 600; color: var(--muted); min-height: 1.4em; }
-.voice-status.voice-success { color: var(--good-text); }
 .voice-status.voice-error { color: var(--low-text); }
 
-table.grid tr.row-highlight { background: var(--good-bg) !important; transition: background 0.3s ease; }
+.voice-dot {
+  display: inline-block;
+  width: 0.7rem;
+  height: 0.7rem;
+  border-radius: 50%;
+  background: var(--danger);
+  animation: voice-pulse 1.2s ease-in-out infinite;
+  flex: none;
+}
+@keyframes voice-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.75); }
+}

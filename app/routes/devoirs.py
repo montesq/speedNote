@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, redirect, render_template, request, url_for
+from flask import Blueprint, flash, jsonify, redirect, render_template, request, url_for
 
 from .. import store, voice
 
@@ -100,24 +100,58 @@ def transcrire(devoir_id):
     if not transcript:
         return jsonify({
             "erreur": "Rien n'a été compris. Réessayez en parlant plus fort et clairement.",
-            "transcript": "",
         })
 
     resultat = voice.parser(transcript, eleves)
     eleve = resultat["eleve"]
-    if eleve is None:
-        return jsonify({
-            "erreur": "Aucun élève reconnu dans l'enregistrement.",
-            "transcript": transcript,
-        })
 
     return jsonify({
-        "eleve_id": eleve["id"],
-        "eleve_nom": f"{eleve['nom']} {eleve['prenom']}".strip(),
+        "eleve_id": eleve["id"] if eleve else None,
+        "eleve_nom": f"{eleve['nom']} {eleve['prenom']}".strip() if eleve else None,
         "valeur": resultat["valeur"],
         "appreciation": resultat["appreciation"],
         "transcript": transcript,
     })
+
+
+@bp.route("/devoirs/<int:devoir_id>/notes", methods=["POST"])
+def enregistrer_note(devoir_id):
+    """Enregistre la note/appréciation d'un seul élève (utilisé par la popup
+    de commentaire vocal), sans toucher aux autres élèves du devoir."""
+    conn = store.get_conn()
+    devoir = conn.execute("SELECT * FROM devoir WHERE id = ?", (devoir_id,)).fetchone()
+    if devoir is None:
+        return redirect(url_for("annees.liste"))
+
+    eleve_id = request.form.get("eleve_id", type=int)
+    if eleve_id:
+        eleve = conn.execute(
+            "SELECT * FROM eleve WHERE id = ? AND classe_id = ?",
+            (eleve_id, devoir["classe_id"]),
+        ).fetchone()
+        if eleve is not None:
+            valeur_raw = request.form.get("valeur", "").strip().replace(",", ".")
+            appreciation = request.form.get("appreciation", "").strip()
+            valeur = None
+            if valeur_raw:
+                try:
+                    valeur = float(valeur_raw)
+                except ValueError:
+                    valeur = None
+            conn.execute(
+                """
+                INSERT INTO note (devoir_id, eleve_id, valeur, appreciation)
+                VALUES (?, ?, ?, ?)
+                ON CONFLICT(devoir_id, eleve_id)
+                DO UPDATE SET valeur = excluded.valeur, appreciation = excluded.appreciation
+                """,
+                (devoir_id, eleve_id, valeur, appreciation or None),
+            )
+            conn.commit()
+            store.save()
+            flash(f"✅ Note enregistrée pour {eleve['nom']} {eleve['prenom']}.")
+
+    return redirect(url_for("devoirs.saisie", devoir_id=devoir_id))
 
 
 @bp.route("/devoirs/<int:devoir_id>/supprimer", methods=["POST"])

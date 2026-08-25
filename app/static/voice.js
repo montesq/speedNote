@@ -1,19 +1,58 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const btn = document.getElementById("voice-btn");
-  const status = document.getElementById("voice-status");
-  if (!btn || !status) return;
+  const openBtn = document.getElementById("voice-btn");
+  const dialog = document.getElementById("modal-voice");
+  if (!openBtn || !dialog) return;
 
-  const devoirId = btn.dataset.devoirId;
+  const devoirId = openBtn.dataset.devoirId;
+  const recordingView = document.getElementById("voice-recording-view");
+  const editView = document.getElementById("voice-edit-view");
+  const statusEl = document.getElementById("voice-status");
+  const transcriptHint = document.getElementById("voice-transcript-hint");
+  const eleveSelect = document.getElementById("voice-eleve-select");
+  const valeurInput = document.getElementById("voice-valeur-input");
+  const appreciationInput = document.getElementById("voice-appreciation-input");
+  const stopBtn = document.getElementById("voice-stop-btn");
+  const cancelBtn = document.getElementById("voice-cancel-btn");
+  const closeBtn = document.getElementById("voice-close-btn");
+  const redoBtn = document.getElementById("voice-redo-btn");
+
   let mediaRecorder = null;
   let chunks = [];
-  let recording = false;
+  let activeStream = null;
+  let cancelled = false;
 
   function setStatus(text, cls) {
-    status.textContent = text;
-    status.className = "voice-status" + (cls ? " " + cls : "");
+    statusEl.innerHTML = "";
+    if (cls !== "voice-error") {
+      const dot = document.createElement("span");
+      dot.className = "voice-dot";
+      statusEl.appendChild(dot);
+    }
+    statusEl.appendChild(document.createTextNode(text));
+    statusEl.className = "voice-status" + (cls ? " " + cls : "");
+  }
+
+  function showRecordingView() {
+    recordingView.hidden = false;
+    editView.hidden = true;
+    setStatus("Enregistrement en cours…");
+  }
+
+  function showEditView() {
+    recordingView.hidden = true;
+    editView.hidden = false;
+  }
+
+  function stopStream() {
+    if (activeStream) {
+      activeStream.getTracks().forEach((track) => track.stop());
+      activeStream = null;
+    }
   }
 
   async function startRecording() {
+    cancelled = false;
+    showRecordingView();
     let stream;
     try {
       stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -21,34 +60,35 @@ document.addEventListener("DOMContentLoaded", () => {
       setStatus("🎙️ Micro inaccessible : " + err.message, "voice-error");
       return;
     }
+    activeStream = stream;
     chunks = [];
     mediaRecorder = new MediaRecorder(stream);
     mediaRecorder.addEventListener("dataavailable", (event) => {
       if (event.data.size > 0) chunks.push(event.data);
     });
     mediaRecorder.addEventListener("stop", () => {
-      stream.getTracks().forEach((track) => track.stop());
-      sendRecording();
+      stopStream();
+      if (!cancelled) sendRecording();
     });
     mediaRecorder.start();
-    recording = true;
-    btn.textContent = "⏹ Arrêter";
-    btn.classList.add("recording");
-    setStatus("🔴 Enregistrement en cours…", "");
   }
 
   function stopRecording() {
-    if (mediaRecorder && recording) {
+    if (mediaRecorder && mediaRecorder.state !== "inactive") {
+      setStatus("Transcription en cours…");
       mediaRecorder.stop();
-      recording = false;
-      btn.textContent = "🎤 Commentaire vocal";
-      btn.classList.remove("recording");
     }
   }
 
+  function abandonRecording() {
+    cancelled = true;
+    if (mediaRecorder && mediaRecorder.state !== "inactive") {
+      mediaRecorder.stop();
+    }
+    stopStream();
+  }
+
   async function sendRecording() {
-    setStatus("⏳ Transcription en cours…", "");
-    btn.disabled = true;
     const blob = new Blob(chunks, { type: mediaRecorder.mimeType || "audio/webm" });
     const formData = new FormData();
     formData.append("audio", blob, "commentaire.webm");
@@ -61,48 +101,33 @@ document.addEventListener("DOMContentLoaded", () => {
       appliquerResultat(data);
     } catch (err) {
       setStatus("❌ Échec de la transcription : " + err.message, "voice-error");
-    } finally {
-      btn.disabled = false;
     }
   }
 
   function appliquerResultat(data) {
     if (data.erreur) {
-      let msg = "⚠️ " + data.erreur;
-      if (data.transcript) msg += ` (compris : "${data.transcript}")`;
-      setStatus(msg, "voice-error");
+      setStatus("⚠️ " + data.erreur, "voice-error");
       return;
     }
-    const noteInput = document.querySelector(`input[name="note_${data.eleve_id}"]`);
-    const appInput = document.querySelector(`input[name="app_${data.eleve_id}"]`);
-    if (!noteInput || !appInput) {
-      setStatus("⚠️ Élève reconnu mais introuvable dans la grille.", "voice-error");
-      return;
-    }
-    if (data.valeur !== null && data.valeur !== undefined) {
-      noteInput.value = data.valeur;
-    }
-    if (data.appreciation) {
-      appInput.value = data.appreciation;
-    }
-    const row = noteInput.closest("tr");
-    if (row) {
-      row.classList.add("row-highlight");
-      row.scrollIntoView({ behavior: "smooth", block: "center" });
-      setTimeout(() => row.classList.remove("row-highlight"), 3000);
-    }
-    appInput.focus();
-    setStatus(
-      `✅ ${data.eleve_nom} : note et appréciation pré-remplies. Vérifiez puis enregistrez.`,
-      "voice-success"
-    );
+    transcriptHint.textContent = data.transcript ? `Compris : « ${data.transcript} »` : "";
+    eleveSelect.value = data.eleve_id || "";
+    valeurInput.value = data.valeur !== null && data.valeur !== undefined ? data.valeur : "";
+    appreciationInput.value = data.appreciation || "";
+    showEditView();
   }
 
-  btn.addEventListener("click", () => {
-    if (recording) {
-      stopRecording();
-    } else {
-      startRecording();
-    }
+  function closeDialog() {
+    abandonRecording();
+    dialog.close();
+  }
+
+  openBtn.addEventListener("click", () => {
+    dialog.showModal();
+    startRecording();
   });
+  stopBtn.addEventListener("click", stopRecording);
+  cancelBtn.addEventListener("click", closeDialog);
+  closeBtn.addEventListener("click", closeDialog);
+  redoBtn.addEventListener("click", () => startRecording());
+  dialog.addEventListener("close", abandonRecording);
 });
