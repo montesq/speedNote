@@ -1,0 +1,13 @@
+[Unit]
+Description=SpeedNote - saisie de notes et appreciations
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=%h/Dev/SpeedNote
+ExecStart=%h/Dev/SpeedNote/venv/bin/python %h/Dev/SpeedNote/run.py
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=default.target

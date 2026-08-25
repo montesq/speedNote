@@ -1,0 +1,100 @@
+:root {
+  color-scheme: light;
+  --bg: #f7f5f2;
+  --panel: #ffffff;
+  --text: #2b2620;
+  --muted: #746c60;
+  --accent: #7a4b2a;
+  --accent-dark: #5c3820;
+  --border: #ddd5c8;
+  --danger: #a3372c;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: "Segoe UI", system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1.5rem;
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+}
+
+.brand {
+  font-weight: 700;
+  font-size: 1.2rem;
+  color: var(--accent-dark);
+  text-decoration: none;
+}
+
+main {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+h1 { color: var(--accent-dark); }
+
+.list { list-style: none; padding: 0; }
+.list li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.list .empty { color: var(--muted); border: none; }
+
+.inline-form { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
+.inline-form input { flex: 1 1 8rem; min-width: 0; }
+
+form { margin: 1rem 0; }
+label { display: block; margin-bottom: 0.75rem; font-size: 0.9rem; color: var(--muted); }
+input, textarea, button {
+  font-size: 1rem;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-family: inherit;
+}
+textarea { width: 100%; }
+
+button {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+}
+button:hover { background: var(--accent-dark); }
+button.danger { background: var(--danger); }
+
+table.grid { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+table.grid th, table.grid td { border: 1px solid var(--border); padding: 0.4rem; text-align: left; }
+table.grid input { width: 100%; border: 1px solid transparent; background: transparent; }
+table.grid input:focus { border-color: var(--accent); background: #fff; outline: none; }
+.note-input { max-width: 5rem; }
+
+.flash {
+  list-style: none;
+  padding: 0.75rem 1rem;
+  background: #eef6ea;
+  border: 1px solid #b8dba8;
+  border-radius: 6px;
+}
+.error { color: var(--danger); font-weight: 600; }
+.warning {
+  color: #8a5a00;
+  background: #fff6e0;
+  border: 1px solid #f0d78c;
+  padding: 0.6rem;
+  border-radius: 6px;
+}

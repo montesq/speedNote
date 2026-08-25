@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Arrêter SpeedNote
+Comment=Arrête l'application SpeedNote et verrouille les données
+Exec=/home/montesq/Dev/SpeedNote/bin/arreter-speednote.sh
+Icon=system-log-out
+Terminal=false
+Categories=Education;

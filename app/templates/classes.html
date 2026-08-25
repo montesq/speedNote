@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Classes {{ annee['libelle'] }} — SpeedNote{% endblock %}
+{% block content %}
+<p><a href="{{ url_for('annees.liste') }}">&larr; Années scolaires</a></p>
+<h1>Classes — {{ annee['libelle'] }}</h1>
+<form method="post" class="inline-form">
+  <input type="text" name="nom" placeholder="ex. 3e B" required>
+  <button type="submit">Ajouter une classe</button>
+</form>
+<ul class="list">
+  {% for classe in classes %}
+  <li>
+    <a href="{{ url_for('classes.detail', classe_id=classe['id']) }}">{{ classe['nom'] }}</a>
+    <form method="post" action="{{ url_for('classes.supprimer', classe_id=classe['id']) }}"
+          class="inline-form"
+          onsubmit="return confirm('Supprimer cette classe et tout son contenu ?');">
+      <button type="submit" class="danger">Supprimer</button>
+    </form>
+  </li>
+  {% else %}
+  <li class="empty">Aucune classe pour cette année.</li>
+  {% endfor %}
+</ul>
+{% endblock %}

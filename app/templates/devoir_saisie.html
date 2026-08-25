@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}{{ devoir['titre'] }} — SpeedNote{% endblock %}
+{% block content %}
+<p><a href="{{ url_for('classes.detail', classe_id=classe['id']) }}">&larr; {{ classe['nom'] }}</a></p>
+<h1>{{ devoir['titre'] }}{% if devoir['date_devoir'] %} — {{ devoir['date_devoir'] }}{% endif %}</h1>
+<p>Barème : /{{ devoir['bareme'] }}</p>
+<form method="post" id="saisie-form">
+  <table class="grid">
+    <thead>
+      <tr><th>Élève</th><th>Note</th><th>Appréciation</th></tr>
+    </thead>
+    <tbody>
+      {% for ligne in lignes %}
+      <tr>
+        <td>{{ ligne['nom'] }} {{ ligne['prenom'] }}</td>
+        <td>
+          <input type="text" inputmode="decimal" class="note-input"
+                 name="note_{{ ligne['eleve_id'] }}"
+                 value="{{ ligne['valeur'] if ligne['valeur'] is not none else '' }}">
+        </td>
+        <td>
+          <input type="text" class="app-input"
+                 name="app_{{ ligne['eleve_id'] }}"
+                 value="{{ ligne['appreciation'] or '' }}">
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="3" class="empty">Aucun élève dans cette classe.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <button type="submit">Enregistrer</button>
+</form>
+<script src="{{ url_for('static', filename='saisie.js') }}"></script>
+{% endblock %}

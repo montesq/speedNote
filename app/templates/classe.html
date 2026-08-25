@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}{{ classe['nom'] }} — SpeedNote{% endblock %}
+{% block content %}
+<p><a href="{{ url_for('classes.liste', annee_id=classe['annee_scolaire_id']) }}">&larr; Classes</a></p>
+<h1>{{ classe['nom'] }}</h1>
+
+<section>
+  <h2>Élèves ({{ eleves|length }})</h2>
+  <ul class="list">
+    {% for e in eleves %}
+    <li>
+      <form method="post" action="{{ url_for('eleves.modifier', eleve_id=e['id']) }}" class="inline-form">
+        <input type="text" name="nom" value="{{ e['nom'] }}" required>
+        <input type="text" name="prenom" value="{{ e['prenom'] }}">
+        <button type="submit">Enregistrer</button>
+      </form>
+      <form method="post" action="{{ url_for('eleves.supprimer', eleve_id=e['id']) }}"
+            class="inline-form" onsubmit="return confirm('Supprimer cet élève ?');">
+        <button type="submit" class="danger">Supprimer</button>
+      </form>
+    </li>
+    {% else %}
+    <li class="empty">Aucun élève dans cette classe.</li>
+    {% endfor %}
+  </ul>
+  <form method="post" action="{{ url_for('eleves.ajouter', classe_id=classe['id']) }}">
+    <label>Ajouter des élèves (un par ligne, "Nom Prénom")
+      <textarea name="bulk" rows="6" placeholder="Dupont Marie&#10;Martin Lucas"></textarea>
+    </label>
+    <button type="submit">Ajouter les élèves</button>
+  </form>
+</section>
+
+<section>
+  <h2>Devoirs ({{ devoirs|length }})</h2>
+  <ul class="list">
+    {% for d in devoirs %}
+    <li>
+      <a href="{{ url_for('devoirs.saisie', devoir_id=d['id']) }}">
+        {{ d['titre'] }}{% if d['date_devoir'] %} — {{ d['date_devoir'] }}{% endif %}
+        (/{{ d['bareme'] }})
+      </a>
+      <form method="post" action="{{ url_for('devoirs.supprimer', devoir_id=d['id']) }}"
+            class="inline-form" onsubmit="return confirm('Supprimer ce devoir et ses notes ?');">
+        <button type="submit" class="danger">Supprimer</button>
+      </form>
+    </li>
+    {% else %}
+    <li class="empty">Aucun devoir pour cette classe.</li>
+    {% endfor %}
+  </ul>
+  <form method="post" action="{{ url_for('devoirs.creer', classe_id=classe['id']) }}" class="devoir-form">
+    <input type="text" name="titre" placeholder="Titre du devoir" required>
+    <input type="date" name="date_devoir">
+    <input type="number" name="bareme" value="20" step="0.5" min="1">
+    <button type="submit">Créer le devoir</button>
+  </form>
+</section>
+{% endblock %}

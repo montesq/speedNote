@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=SpeedNote
+Comment=Saisie des notes et appréciations
+Exec=/home/montesq/Dev/SpeedNote/bin/demarrer-speednote.sh
+Icon=accessories-text-editor
+Terminal=false
+Categories=Education;
