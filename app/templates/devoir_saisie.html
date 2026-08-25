@@ -45,9 +45,11 @@
 <dialog id="modal-edit-note" class="modal modal-voice" data-devoir-id="{{ devoir['id'] }}">
   <div id="voice-recording-view" hidden>
     <h2>🎤 Nouvel enregistrement</h2>
-    <p id="voice-status" class="voice-status">
-      <span class="voice-dot"></span>Enregistrement en cours…
-    </p>
+    <div class="vu-meter">
+      <div class="vu-meter-track"></div>
+      <div class="vu-meter-mask" id="vu-mask"></div>
+    </div>
+    <p id="voice-status" class="voice-status"></p>
     <div class="modal-actions">
       <button type="button" class="btn-ghost" id="voice-cancel-btn">Annuler</button>
       <button type="button" class="danger" id="voice-stop-btn">⏹ Arrêter</button>

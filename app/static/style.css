@@ -323,3 +323,28 @@ dialog.modal-voice textarea { min-height: 8rem; resize: vertical; }
   0%, 100% { opacity: 1; transform: scale(1); }
   50% { opacity: 0.4; transform: scale(0.75); }
 }
+
+.vu-meter {
+  position: relative;
+  width: 100%;
+  height: 1.5rem;
+  border-radius: 999px;
+  overflow: hidden;
+  margin: 0.75rem 0 0.25rem;
+  background: var(--border);
+  box-shadow: inset 0 1px 3px rgba(45, 42, 58, 0.15);
+}
+.vu-meter-track {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, var(--good-text) 0%, var(--good-text) 45%, var(--yellow) 75%, var(--danger) 100%);
+}
+.vu-meter-mask {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  background: var(--border);
+  transition: width 70ms linear;
+}

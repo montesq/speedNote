@@ -7,6 +7,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const recordingView = document.getElementById("voice-recording-view");
   const editView = document.getElementById("voice-edit-view");
   const statusEl = document.getElementById("voice-status");
+  const vuMask = document.getElementById("vu-mask");
   const transcriptHint = document.getElementById("voice-transcript-hint");
   const eleveNomEl = document.getElementById("edit-eleve-nom");
   const eleveIdInput = document.getElementById("edit-eleve-id");
@@ -21,6 +22,9 @@ document.addEventListener("DOMContentLoaded", () => {
   let chunks = [];
   let activeStream = null;
   let cancelled = false;
+  let audioContext = null;
+  let analyser = null;
+  let vuAnimationFrame = null;
 
   function setStatus(text, cls) {
     statusEl.innerHTML = "";
@@ -36,7 +40,8 @@ document.addEventListener("DOMContentLoaded", () => {
   function showRecordingView() {
     recordingView.hidden = false;
     editView.hidden = true;
-    setStatus("Enregistrement en cours…");
+    statusEl.innerHTML = "";
+    statusEl.className = "voice-status";
   }
 
   function showEditView() {
@@ -51,6 +56,44 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  function startVuMeter(stream) {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    audioContext = new AudioCtx();
+    const source = audioContext.createMediaStreamSource(stream);
+    analyser = audioContext.createAnalyser();
+    analyser.fftSize = 512;
+    analyser.smoothingTimeConstant = 0.6;
+    source.connect(analyser);
+    const data = new Uint8Array(analyser.frequencyBinCount);
+
+    function tick() {
+      analyser.getByteTimeDomainData(data);
+      let sumSquares = 0;
+      for (let i = 0; i < data.length; i++) {
+        const normalized = (data[i] - 128) / 128;
+        sumSquares += normalized * normalized;
+      }
+      const rms = Math.sqrt(sumSquares / data.length);
+      const level = Math.min(1, rms * 4.5);
+      vuMask.style.width = (100 - level * 100) + "%";
+      vuAnimationFrame = requestAnimationFrame(tick);
+    }
+    tick();
+  }
+
+  function stopVuMeter() {
+    if (vuAnimationFrame) {
+      cancelAnimationFrame(vuAnimationFrame);
+      vuAnimationFrame = null;
+    }
+    if (audioContext) {
+      audioContext.close();
+      audioContext = null;
+      analyser = null;
+    }
+    vuMask.style.width = "100%";
+  }
+
   async function startRecording() {
     cancelled = false;
     showRecordingView();
@@ -62,12 +105,14 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
     activeStream = stream;
+    startVuMeter(stream);
     chunks = [];
     mediaRecorder = new MediaRecorder(stream);
     mediaRecorder.addEventListener("dataavailable", (event) => {
       if (event.data.size > 0) chunks.push(event.data);
     });
     mediaRecorder.addEventListener("stop", () => {
+      stopVuMeter();
       stopStream();
       if (!cancelled) sendRecording();
     });
@@ -86,6 +131,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (mediaRecorder && mediaRecorder.state !== "inactive") {
       mediaRecorder.stop();
     }
+    stopVuMeter();
     stopStream();
   }
 
