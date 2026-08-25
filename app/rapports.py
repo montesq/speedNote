@@ -1,0 +1,86 @@
+"""Génération des rapports PDF individuels (un par élève) pour un devoir,
+au format A5 (une demi-page A4)."""
+
+import re
+import unicodedata
+from pathlib import Path
+
+from fpdf import FPDF
+
+FONTS_DIR = Path(__file__).resolve().parent / "fonts"
+MARGE = 15
+
+TEXTE = (45, 42, 58)
+MUTED = (139, 133, 152)
+BONNE = (13, 138, 95)
+MOYENNE = (165, 114, 11)
+FAIBLE = (194, 40, 54)
+LIGNE = (230, 228, 220)
+
+
+def slugifier(texte: str) -> str:
+    texte = unicodedata.normalize("NFKD", texte)
+    texte = "".join(c for c in texte if not unicodedata.combining(c))
+    texte = re.sub(r"[^a-zA-Z0-9]+", "-", texte).strip("-").lower()
+    return texte or "rapport"
+
+
+def generer_rapports(devoir, classe, lignes) -> bytes:
+    """lignes : élève (nom, prenom), valeur, appreciation — une page A5 par élève."""
+    pdf = FPDF(orientation="P", unit="mm", format="A5")
+    pdf.set_auto_page_break(auto=True, margin=MARGE)
+    pdf.add_font("DejaVu", "", str(FONTS_DIR / "DejaVuSans.ttf"))
+    pdf.add_font("DejaVu", "B", str(FONTS_DIR / "DejaVuSans-Bold.ttf"))
+
+    for ligne in lignes:
+        pdf.add_page()
+        pdf.set_margins(MARGE, MARGE, MARGE)
+
+        pdf.set_font("DejaVu", "B", 18)
+        pdf.set_text_color(*TEXTE)
+        pdf.cell(0, 10, f"{ligne['prenom']} {ligne['nom']}", new_x="LMARGIN", new_y="NEXT")
+
+        pdf.set_font("DejaVu", "", 11)
+        pdf.set_text_color(*MUTED)
+        pdf.cell(0, 7, classe["nom"], new_x="LMARGIN", new_y="NEXT")
+
+        pdf.ln(4)
+        pdf.set_draw_color(*LIGNE)
+        pdf.line(MARGE, pdf.get_y(), pdf.w - MARGE, pdf.get_y())
+        pdf.ln(6)
+
+        pdf.set_font("DejaVu", "B", 13)
+        pdf.set_text_color(*TEXTE)
+        pdf.cell(0, 8, devoir["titre"], new_x="LMARGIN", new_y="NEXT")
+
+        if devoir["date_devoir"]:
+            pdf.set_font("DejaVu", "", 10)
+            pdf.set_text_color(*MUTED)
+            pdf.cell(0, 6, devoir["date_devoir"], new_x="LMARGIN", new_y="NEXT")
+
+        pdf.ln(6)
+
+        valeur = ligne["valeur"]
+        bareme = devoir["bareme"]
+        if valeur is not None:
+            note_texte = f"{valeur:g} / {bareme:g}"
+            ratio = (valeur / bareme) if bareme else 0
+            if ratio >= 0.7:
+                pdf.set_text_color(*BONNE)
+            elif ratio >= 0.5:
+                pdf.set_text_color(*MOYENNE)
+            else:
+                pdf.set_text_color(*FAIBLE)
+        else:
+            note_texte = "Non noté"
+            pdf.set_text_color(*MUTED)
+        pdf.set_font("DejaVu", "B", 24)
+        pdf.cell(0, 14, note_texte, new_x="LMARGIN", new_y="NEXT")
+
+        pdf.ln(6)
+        pdf.set_font("DejaVu", "", 11)
+        pdf.set_text_color(*TEXTE)
+        appreciation = ligne["appreciation"] or "Aucune appréciation."
+        pdf.multi_cell(0, 6.5, appreciation)
+
+    return bytes(pdf.output())

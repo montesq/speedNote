@@ -122,7 +122,7 @@ input:focus, textarea:focus {
 }
 textarea { width: 100%; }
 
-button {
+button, a.btn {
   font-family: var(--font-fun);
   font-size: 1rem;
   font-weight: 700;
@@ -134,27 +134,29 @@ button {
   cursor: pointer;
   box-shadow: 0 3px 0 var(--accent-dark);
   transition: transform 0.12s ease, box-shadow 0.12s ease;
+  display: inline-block;
+  text-decoration: none;
 }
-button:hover { background: var(--accent-dark); transform: translateY(-1px); }
-button:active { transform: translateY(1px); box-shadow: 0 1px 0 var(--accent-dark); }
+button:hover, a.btn:hover { background: var(--accent-dark); transform: translateY(-1px); }
+button:active, a.btn:active { transform: translateY(1px); box-shadow: 0 1px 0 var(--accent-dark); }
 
 button.danger { background: var(--danger); box-shadow: 0 3px 0 var(--danger-dark); }
 button.danger:hover { background: var(--danger-dark); }
 
-.btn-ghost {
+.btn-ghost, a.btn-ghost {
   background: transparent;
   color: var(--muted);
   box-shadow: none;
   border: 2px solid var(--border);
 }
-.btn-ghost:hover { background: var(--bg); color: var(--text); transform: none; }
+.btn-ghost:hover, a.btn-ghost:hover { background: var(--bg); color: var(--text); transform: none; }
 
-.btn-cta {
+.btn-cta, a.btn-cta {
   background: var(--secondary);
   box-shadow: 0 3px 0 var(--secondary-dark);
   font-size: 1.05rem;
 }
-.btn-cta:hover { background: var(--secondary-dark); }
+.btn-cta:hover, a.btn-cta:hover { background: var(--secondary-dark); }
 
 dialog.modal {
   border: none;

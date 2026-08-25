@@ -42,6 +42,8 @@
 </div>
 
 {% if lignes %}
+<a href="{{ url_for('devoirs.generer_rapports', devoir_id=devoir['id']) }}" class="btn btn-cta">📄 Générer les rapports</a>
+
 <dialog id="modal-edit-note" class="modal modal-voice" data-devoir-id="{{ devoir['id'] }}">
   <div id="voice-recording-view" hidden>
     <h2>🎤 Nouvel enregistrement</h2>

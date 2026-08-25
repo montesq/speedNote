@@ -1,6 +1,6 @@
-from flask import Blueprint, flash, jsonify, redirect, render_template, request, url_for
+from flask import Blueprint, Response, flash, jsonify, redirect, render_template, request, url_for
 
-from .. import store, voice
+from .. import rapports, store, voice
 
 bp = Blueprint("devoirs", __name__)
 
@@ -53,6 +53,40 @@ def saisie(devoir_id):
 
     return render_template(
         "devoir_saisie.html", devoir=devoir, classe=classe, lignes=lignes, moyenne=moyenne
+    )
+
+
+@bp.route("/devoirs/<int:devoir_id>/rapports")
+def generer_rapports(devoir_id):
+    conn = store.get_conn()
+    devoir = conn.execute("SELECT * FROM devoir WHERE id = ?", (devoir_id,)).fetchone()
+    if devoir is None:
+        return redirect(url_for("annees.liste"))
+
+    classe = conn.execute(
+        "SELECT * FROM classe WHERE id = ?", (devoir["classe_id"],)
+    ).fetchone()
+    lignes = conn.execute(
+        """
+        SELECT eleve.id AS eleve_id, eleve.nom, eleve.prenom,
+               note.valeur, note.appreciation
+        FROM eleve
+        LEFT JOIN note ON note.eleve_id = eleve.id AND note.devoir_id = ?
+        WHERE eleve.classe_id = ?
+        ORDER BY eleve.nom, eleve.prenom
+        """,
+        (devoir_id, devoir["classe_id"]),
+    ).fetchall()
+
+    if not lignes:
+        return redirect(url_for("devoirs.saisie", devoir_id=devoir_id))
+
+    pdf_bytes = rapports.generer_rapports(devoir, classe, lignes)
+    filename = f"rapports-{rapports.slugifier(devoir['titre'])}.pdf"
+    return Response(
+        pdf_bytes,
+        mimetype="application/pdf",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
     )
 
 
