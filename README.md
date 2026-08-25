@@ -25,9 +25,11 @@ classe et devoir.
 ## Installation
 
 ```bash
+sudo apt install ffmpeg   # nécessaire pour le commentaire vocal
 cd ~/Dev/SpeedNote
 python3 -m venv venv
 venv/bin/pip install -r requirements.txt
+./scripts/download_vosk_model.sh   # modèle de reconnaissance vocale (~41 Mo, une seule fois)
 ```
 
 ## Utilisation au quotidien (raccourcis)
@@ -97,6 +99,13 @@ restent accessibles à tout moment depuis **Admin**.
   touche Entrée passe au champ suivant et enregistre en fin de tableau.
 - Cliquer sur le titre d'un devoir dans le carnet rouvre cette grille pour
   corriger une note ou une appréciation.
+- Sur la page d'un devoir, le bouton **🎤 Commentaire vocal** permet de
+  dicter le nom de l'élève, sa note et une appréciation (ex. « Camille
+  Dupuis, quatorze, bon travail mais peut approfondir l'analyse »). La
+  reconnaissance vocale est **100% locale** (aucun son n'est envoyé sur
+  Internet) : elle repère l'élève, remplit sa note et son appréciation
+  directement dans la grille — à relire avant de cliquer sur
+  "💾 Enregistrer", la reconnaissance n'étant pas parfaite.
 
 ### Admin
 

@@ -1,3 +1,5 @@
 Flask>=3.0,<4.0
 waitress>=3.0,<4.0
 cryptography>=42.0
+vosk>=0.3.42
+text2num>=2.4.0

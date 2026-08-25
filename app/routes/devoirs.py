@@ -1,6 +1,6 @@
-from flask import Blueprint, redirect, render_template, request, url_for
+from flask import Blueprint, jsonify, redirect, render_template, request, url_for
 
-from .. import store
+from .. import store, voice
 
 bp = Blueprint("devoirs", __name__)
 
@@ -75,6 +75,49 @@ def saisie(devoir_id):
         (devoir_id, devoir["classe_id"]),
     ).fetchall()
     return render_template("devoir_saisie.html", devoir=devoir, classe=classe, lignes=lignes)
+
+
+@bp.route("/devoirs/<int:devoir_id>/transcrire", methods=["POST"])
+def transcrire(devoir_id):
+    conn = store.get_conn()
+    devoir = conn.execute("SELECT * FROM devoir WHERE id = ?", (devoir_id,)).fetchone()
+    if devoir is None:
+        return jsonify({"erreur": "Devoir introuvable."}), 404
+
+    audio_file = request.files.get("audio")
+    if audio_file is None:
+        return jsonify({"erreur": "Aucun enregistrement reçu."}), 400
+
+    eleves = conn.execute(
+        "SELECT id, nom, prenom FROM eleve WHERE classe_id = ?", (devoir["classe_id"],)
+    ).fetchall()
+
+    try:
+        transcript = voice.transcribe(audio_file.read())
+    except voice.TranscriptionError as exc:
+        return jsonify({"erreur": str(exc)}), 500
+
+    if not transcript:
+        return jsonify({
+            "erreur": "Rien n'a été compris. Réessayez en parlant plus fort et clairement.",
+            "transcript": "",
+        })
+
+    resultat = voice.parser(transcript, eleves)
+    eleve = resultat["eleve"]
+    if eleve is None:
+        return jsonify({
+            "erreur": "Aucun élève reconnu dans l'enregistrement.",
+            "transcript": transcript,
+        })
+
+    return jsonify({
+        "eleve_id": eleve["id"],
+        "eleve_nom": f"{eleve['nom']} {eleve['prenom']}".strip(),
+        "valeur": resultat["valeur"],
+        "appreciation": resultat["appreciation"],
+        "transcript": transcript,
+    })
 
 
 @bp.route("/devoirs/<int:devoir_id>/supprimer", methods=["POST"])
