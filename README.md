@@ -104,3 +104,19 @@ Le lien **Admin** (en haut de l'écran) donne accès aux écrans de
 configuration : années scolaires, classes, élèves et suppression des
 devoirs — pour ajouter une classe en cours d'année, gérer les élèves, ou
 préparer l'année scolaire suivante.
+
+## Développement : jeu de données de test
+
+Pour explorer l'application sans repasser par l'assistant de configuration à
+chaque fois, un script génère un jeu de données factices (une année, trois
+classes, des élèves, des devoirs et des notes/appréciations variées) :
+
+```bash
+./bin/arreter-speednote.sh   # l'application doit être arrêtée
+rm -rf data                  # repartir de zéro si une base existe déjà
+venv/bin/python scripts/seed_demo.py
+```
+
+Mot de passe créé : `demo1234`. Ce script est un outil de développement — à
+ne pas utiliser sur une base contenant de vraies données (il refuse
+d'ailleurs de s'exécuter si `data/speednote.db.enc` existe déjà).
