@@ -23,7 +23,7 @@ CREATE TABLE devoir (
     classe_id INTEGER NOT NULL REFERENCES classe(id) ON DELETE CASCADE,
     titre TEXT NOT NULL,
     date_devoir TEXT,
-    bareme REAL NOT NULL DEFAULT 20,
+    coefficient REAL NOT NULL DEFAULT 1,
     periode TEXT NOT NULL DEFAULT 'T1'
 );
 

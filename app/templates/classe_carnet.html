@@ -38,7 +38,7 @@
       {% for d in devoirs %}
       <th>
         <a href="{{ url_for('devoirs.saisie', devoir_id=d['id']) }}">{{ d['titre'] }}</a>
-        <br><span class="muted">/{{ d['bareme'] }}</span>
+        <br><span class="muted">coef. {{ d['coefficient']|int if d['coefficient'] == d['coefficient']|int else d['coefficient'] }}</span>
       </th>
       {% endfor %}
       <th>Moyenne<br><span class="muted">période /20</span></th>
@@ -101,8 +101,8 @@
     <label>Date
       <input type="date" name="date_devoir">
     </label>
-    <label>Barème
-      <input type="number" name="bareme" value="20" step="0.5" min="1">
+    <label>Coefficient
+      <input type="number" name="coefficient" value="1" step="0.5" min="0.5">
     </label>
     <label>Période
       <select name="periode">

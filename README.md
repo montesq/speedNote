@@ -98,7 +98,7 @@ restent accessibles à tout moment depuis **Admin**.
   chaque devoir de la période la note obtenue. La période affichée par
   défaut est celle du dernier devoir saisi ; un menu déroulant permet d'en
   choisir une autre. C'est aussi depuis cet écran que se crée un nouveau
-  **devoir** (titre, date, barème, période — pré-remplie avec la période du
+  **devoir** (titre, date, coefficient, période — pré-remplie avec la période du
   dernier devoir de la classe) — la création amène directement sur la
   grille de saisie note + appréciation par élève.
 - Cliquer sur le titre d'un devoir dans le carnet rouvre cette grille pour

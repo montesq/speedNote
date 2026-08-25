@@ -52,18 +52,18 @@ CLASSES = {
 
 DEVOIRS_PAR_CLASSE = {
     "2nde A": [
-        ("Contrôle de lecture — Candide", "2025-09-22", 20, "T1"),
-        ("Explication linéaire n°1", "2025-10-10", 20, "T1"),
-        ("Dissertation — La Fontaine", "2025-11-14", 20, "T2"),
+        ("Contrôle de lecture — Candide", "2025-09-22", 1, "T1"),
+        ("Explication linéaire n°1", "2025-10-10", 1, "T1"),
+        ("Dissertation — La Fontaine", "2025-11-14", 2, "T2"),
     ],
     "1re B": [
-        ("Commentaire — Les Fleurs du mal", "2025-09-18", 20, "S1"),
-        ("Question de grammaire", "2025-10-02", 10, "S1"),
-        ("Dissertation blanche", "2025-11-20", 20, "S2"),
+        ("Commentaire — Les Fleurs du mal", "2025-09-18", 2, "S1"),
+        ("Question de grammaire", "2025-10-02", 1, "S1"),
+        ("Dissertation blanche", "2025-11-20", 3, "S2"),
     ],
     "Terminale C": [
-        ("Explication linéaire — Spleen", "2025-09-25", 20, "S1"),
-        ("Dissertation — Le roman", "2025-10-30", 20, "S2"),
+        ("Explication linéaire — Spleen", "2025-09-25", 2, "S1"),
+        ("Dissertation — Le roman", "2025-10-30", 3, "S2"),
     ],
 }
 
@@ -303,11 +303,11 @@ APPRECIATIONS_FAIBLES = [
 ]
 
 
-def note_et_appreciation(bareme, rng):
+def note_et_appreciation(rng):
     if rng.random() < 0.08:
         return None, None
-    valeur = round(rng.triangular(bareme * 0.35, bareme, bareme * 0.75), 1)
-    ratio = valeur / bareme
+    valeur = round(rng.triangular(20 * 0.35, 20, 20 * 0.75), 1)
+    ratio = valeur / 20
     if ratio >= 0.7:
         appreciation = rng.choice(APPRECIATIONS_BONNES)
     elif ratio >= 0.5:
@@ -347,15 +347,15 @@ def main():
             )
             eleve_ids.append(cur.lastrowid)
 
-        for titre, date_devoir, bareme, periode in DEVOIRS_PAR_CLASSE[nom_classe]:
+        for titre, date_devoir, coefficient, periode in DEVOIRS_PAR_CLASSE[nom_classe]:
             cur = conn.execute(
-                "INSERT INTO devoir (classe_id, titre, date_devoir, bareme, periode) VALUES (?, ?, ?, ?, ?)",
-                (classe_id, titre, date_devoir, bareme, periode),
+                "INSERT INTO devoir (classe_id, titre, date_devoir, coefficient, periode) VALUES (?, ?, ?, ?, ?)",
+                (classe_id, titre, date_devoir, coefficient, periode),
             )
             devoir_id = cur.lastrowid
 
             for eleve_id in eleve_ids:
-                valeur, appreciation = note_et_appreciation(bareme, rng)
+                valeur, appreciation = note_et_appreciation(rng)
                 conn.execute(
                     "INSERT INTO note (devoir_id, eleve_id, valeur, appreciation) VALUES (?, ?, ?, ?)",
                     (devoir_id, eleve_id, valeur, appreciation),

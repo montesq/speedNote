@@ -61,10 +61,9 @@ def generer_rapports(devoir, classe, lignes) -> bytes:
         pdf.ln(6)
 
         valeur = ligne["valeur"]
-        bareme = devoir["bareme"]
         if valeur is not None:
-            note_texte = f"{valeur:g} / {bareme:g}"
-            ratio = (valeur / bareme) if bareme else 0
+            note_texte = f"{valeur:g} / 20"
+            ratio = valeur / 20
             if ratio >= 0.7:
                 pdf.set_text_color(*BONNE)
             elif ratio >= 0.5:

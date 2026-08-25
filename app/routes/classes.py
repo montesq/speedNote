@@ -74,8 +74,8 @@ def carnet(classe_id):
         valeur = entry["valeur"] if entry else None
         appreciation = entry["appreciation"] if entry else None
         css = ""
-        if valeur is not None and devoir["bareme"]:
-            ratio = valeur / devoir["bareme"]
+        if valeur is not None:
+            ratio = valeur / 20
             css = "note-bonne" if ratio >= 0.7 else "note-moyenne" if ratio >= 0.5 else "note-faible"
         return {
             "valeur": valeur,
@@ -85,13 +85,16 @@ def carnet(classe_id):
         }
 
     def moyenne_eleve(notes):
-        """Moyenne de l'élève sur la période, notes normalisées sur 20."""
-        normalisees = [
-            n["valeur"] / d["bareme"] * 20
+        """Moyenne pondérée de l'élève sur la période (coefficient de chaque devoir)."""
+        pondere = [
+            (n["valeur"], d["coefficient"])
             for n, d in zip(notes, devoirs)
-            if n["valeur"] is not None and d["bareme"]
+            if n["valeur"] is not None
         ]
-        return round(sum(normalisees) / len(normalisees), 2) if normalisees else None
+        total_coef = sum(c for _, c in pondere)
+        if not pondere or not total_coef:
+            return None
+        return round(sum(v * c for v, c in pondere) / total_coef, 2)
 
     lignes = []
     for e in eleves:

@@ -14,11 +14,11 @@ def creer(classe_id):
 
     titre = request.form.get("titre", "").strip()
     date_devoir = request.form.get("date_devoir", "").strip()
-    bareme_raw = request.form.get("bareme", "20").strip().replace(",", ".")
+    coefficient_raw = request.form.get("coefficient", "1").strip().replace(",", ".")
     try:
-        bareme = float(bareme_raw) if bareme_raw else 20.0
+        coefficient = float(coefficient_raw) if coefficient_raw else 1.0
     except ValueError:
-        bareme = 20.0
+        coefficient = 1.0
 
     periode = request.form.get("periode", "")
     if periode not in periodes.periodes_pour(classe["systeme_periode"]):
@@ -26,8 +26,8 @@ def creer(classe_id):
 
     if titre:
         cur = conn.execute(
-            "INSERT INTO devoir (classe_id, titre, date_devoir, bareme, periode) VALUES (?, ?, ?, ?, ?)",
-            (classe_id, titre, date_devoir or None, bareme, periode),
+            "INSERT INTO devoir (classe_id, titre, date_devoir, coefficient, periode) VALUES (?, ?, ?, ?, ?)",
+            (classe_id, titre, date_devoir or None, coefficient, periode),
         )
         conn.commit()
         store.save()

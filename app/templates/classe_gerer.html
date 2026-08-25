@@ -41,7 +41,7 @@
     <li>
       <a href="{{ url_for('devoirs.saisie', devoir_id=d['id']) }}">
         [{{ d['periode'] }}] {{ d['titre'] }}{% if d['date_devoir'] %} — {{ d['date_devoir'] }}{% endif %}
-        (/{{ d['bareme'] }})
+        (coef. {{ d['coefficient']|int if d['coefficient'] == d['coefficient']|int else d['coefficient'] }})
       </a>
       <form method="post" action="{{ url_for('devoirs.supprimer', devoir_id=d['id']) }}"
             class="inline-form" onsubmit="return confirm('Supprimer ce devoir et ses notes ?');">
