@@ -1,4 +1,16 @@
-from flask import Blueprint, Response, flash, jsonify, redirect, render_template, request, url_for
+from io import BytesIO
+
+from flask import (
+    Blueprint,
+    Response,
+    flash,
+    jsonify,
+    redirect,
+    render_template,
+    request,
+    send_file,
+    url_for,
+)
 
 from .. import periodes, rapports, store, voice
 
@@ -24,10 +36,26 @@ def creer(classe_id):
     if periode not in periodes.periodes_pour(classe["systeme_periode"]):
         periode = periodes.periode_par_defaut(conn, classe)
 
+    sujet_nom_fichier = None
+    sujet_type_mime = None
+    sujet_fichier = None
+    fichier = request.files.get("sujet")
+    if fichier and fichier.filename:
+        sujet_nom_fichier = fichier.filename
+        sujet_type_mime = fichier.mimetype
+        sujet_fichier = fichier.read()
+
     if titre:
         cur = conn.execute(
-            "INSERT INTO devoir (classe_id, titre, date_devoir, coefficient, periode) VALUES (?, ?, ?, ?, ?)",
-            (classe_id, titre, date_devoir or None, coefficient, periode),
+            """
+            INSERT INTO devoir (classe_id, titre, date_devoir, coefficient, periode,
+                                 sujet_nom_fichier, sujet_type_mime, sujet_fichier)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                classe_id, titre, date_devoir or None, coefficient, periode,
+                sujet_nom_fichier, sujet_type_mime, sujet_fichier,
+            ),
         )
         conn.commit()
         store.save()
@@ -62,6 +90,24 @@ def saisie(devoir_id):
 
     return render_template(
         "devoir_saisie.html", devoir=devoir, classe=classe, lignes=lignes, moyenne=moyenne
+    )
+
+
+@bp.route("/devoirs/<int:devoir_id>/sujet")
+def telecharger_sujet(devoir_id):
+    conn = store.get_conn()
+    devoir = conn.execute(
+        "SELECT sujet_fichier, sujet_nom_fichier, sujet_type_mime FROM devoir WHERE id = ?",
+        (devoir_id,),
+    ).fetchone()
+    if devoir is None or devoir["sujet_fichier"] is None:
+        return redirect(url_for("devoirs.saisie", devoir_id=devoir_id))
+
+    return send_file(
+        BytesIO(devoir["sujet_fichier"]),
+        mimetype=devoir["sujet_type_mime"] or "application/octet-stream",
+        as_attachment=True,
+        download_name=devoir["sujet_nom_fichier"] or "sujet",
     )
 
 

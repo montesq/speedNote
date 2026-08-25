@@ -94,7 +94,7 @@
 {% endif %}
 
 <dialog id="modal-devoir" class="modal">
-  <form method="post" action="{{ url_for('devoirs.creer', classe_id=classe['id']) }}">
+  <form method="post" action="{{ url_for('devoirs.creer', classe_id=classe['id']) }}" enctype="multipart/form-data">
     <h2>✏️ Nouveau devoir</h2>
     <label>Titre
       <input type="text" name="titre" placeholder="Titre du devoir" required>
@@ -111,6 +111,9 @@
         <option value="{{ p }}" {% if p == periode_defaut %}selected{% endif %}>{{ p }}</option>
         {% endfor %}
       </select>
+    </label>
+    <label>Sujet du devoir (optionnel, 20 Mo max)
+      <input type="file" name="sujet">
     </label>
     <div class="modal-actions">
       <button type="button" class="btn-ghost" onclick="document.getElementById('modal-devoir').close()">Annuler</button>

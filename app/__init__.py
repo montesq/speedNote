@@ -8,6 +8,7 @@ from . import store
 def create_app() -> Flask:
     app = Flask(__name__)
     app.config["SECRET_KEY"] = _load_or_create_secret_key()
+    app.config["MAX_CONTENT_LENGTH"] = 20 * 1024 * 1024  # 20 Mo (sujet joint, enregistrement vocal)
 
     from .routes.accueil import bp as accueil_bp
     from .routes.annees import bp as annees_bp

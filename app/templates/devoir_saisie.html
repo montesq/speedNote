@@ -11,6 +11,9 @@
          value="{{ devoir['coefficient']|int if devoir['coefficient'] == devoir['coefficient']|int else devoir['coefficient'] }}"
          step="0.5" min="0.5">
 </p>
+{% if devoir['sujet_nom_fichier'] %}
+<p><a href="{{ url_for('devoirs.telecharger_sujet', devoir_id=devoir['id']) }}" class="btn btn-ghost">📎 Télécharger le sujet ({{ devoir['sujet_nom_fichier'] }})</a></p>
+{% endif %}
 
 {% if not lignes %}
 <p class="empty">Aucun élève dans cette classe.</p>
