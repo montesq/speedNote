@@ -65,6 +65,28 @@ def saisie(devoir_id):
     )
 
 
+@bp.route("/devoirs/<int:devoir_id>/coefficient", methods=["POST"])
+def modifier_coefficient(devoir_id):
+    conn = store.get_conn()
+    devoir = conn.execute("SELECT * FROM devoir WHERE id = ?", (devoir_id,)).fetchone()
+    if devoir is None:
+        return jsonify({"erreur": "Devoir introuvable."}), 404
+
+    coefficient_raw = request.form.get("coefficient", "").strip().replace(",", ".")
+    try:
+        coefficient = float(coefficient_raw)
+    except ValueError:
+        return jsonify({"erreur": "Coefficient invalide."}), 400
+    if coefficient <= 0:
+        return jsonify({"erreur": "Le coefficient doit être supérieur à 0."}), 400
+
+    conn.execute("UPDATE devoir SET coefficient = ? WHERE id = ?", (coefficient, devoir_id))
+    conn.commit()
+    store.save()
+
+    return jsonify({"coefficient": coefficient})
+
+
 @bp.route("/devoirs/<int:devoir_id>/rapports")
 def generer_rapports(devoir_id):
     conn = store.get_conn()

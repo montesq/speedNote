@@ -34,5 +34,7 @@
   {% endwith %}
   {% block content %}{% endblock %}
 </main>
+<div id="toast-container" class="toast-container" aria-live="polite"></div>
+<script src="{{ url_for('static', filename='toast.js') }}"></script>
 </body>
 </html>

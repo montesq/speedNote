@@ -3,7 +3,13 @@
 {% block content %}
 <p><a href="{{ url_for('classes.carnet', classe_id=classe['id'], periode=devoir['periode']) }}">&larr; {{ classe['nom'] }}</a></p>
 <h1>✏️ {{ devoir['titre'] }}{% if devoir['date_devoir'] %} — {{ devoir['date_devoir'] }}{% endif %}</h1>
-<p>Période {{ devoir['periode'] }} · Coefficient {{ devoir['coefficient']|int if devoir['coefficient'] == devoir['coefficient']|int else devoir['coefficient'] }}</p>
+<p>
+  Période {{ devoir['periode'] }} · Coefficient
+  <input type="number" id="coefficient-input" class="coefficient-input"
+         data-devoir-id="{{ devoir['id'] }}"
+         value="{{ devoir['coefficient']|int if devoir['coefficient'] == devoir['coefficient']|int else devoir['coefficient'] }}"
+         step="0.5" min="0.5">
+</p>
 
 <div class="table-scroll">
 <table class="grid">
@@ -77,4 +83,5 @@
 {% endif %}
 
 <script src="{{ url_for('static', filename='voice.js') }}"></script>
+<script src="{{ url_for('static', filename='devoir_coefficient.js') }}"></script>
 {% endblock %}
