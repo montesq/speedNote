@@ -3,12 +3,12 @@
 {% block content %}
 <p>
   <a href="{{ url_for('accueil.index') }}">&larr; Changer de classe</a> ·
-  <a href="{{ url_for('classes.gerer', classe_id=classe['id']) }}">Gérer la classe</a>
+  <a href="{{ url_for('classes.gerer', classe_id=classe['id']) }}">⚙️ Gérer la classe</a>
 </p>
-<h1>{{ classe['nom'] }}</h1>
+<h1>📘 {{ classe['nom'] }}</h1>
 
 {% if not eleves %}
-<p class="empty">Aucun élève dans cette classe. Ajoutez-en depuis
+<p class="empty">🌱 Aucun élève dans cette classe. Ajoutez-en depuis
   <a href="{{ url_for('classes.gerer', classe_id=classe['id']) }}">Gérer la classe</a>.</p>
 {% else %}
 <div class="table-scroll">
@@ -29,7 +29,7 @@
     <tr>
       <td>{{ ligne.eleve['nom'] }} {{ ligne.eleve['prenom'] }}</td>
       {% for note in ligne.notes %}
-      <td>{{ note if note is not none else '—' }}</td>
+      <td class="{{ note.css }}">{{ note.valeur if note.valeur is not none else '—' }}</td>
       {% endfor %}
     </tr>
     {% endfor %}
@@ -37,15 +37,15 @@
 </table>
 </div>
 {% if not devoirs %}
-<p class="empty">Aucun devoir pour cette classe pour le moment.</p>
+<p class="empty">📝 Aucun devoir pour cette classe pour le moment.</p>
 {% endif %}
 {% endif %}
 
-<h2>Ajouter un devoir</h2>
+<h2>✏️ Ajouter un devoir</h2>
 <form method="post" action="{{ url_for('devoirs.creer', classe_id=classe['id']) }}" class="devoir-form">
   <input type="text" name="titre" placeholder="Titre du devoir" required>
   <input type="date" name="date_devoir">
   <input type="number" name="bareme" value="20" step="0.5" min="1">
-  <button type="submit">Créer le devoir</button>
+  <button type="submit">➕ Créer le devoir</button>
 </form>
 {% endblock %}

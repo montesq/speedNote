@@ -1,11 +1,11 @@
 {% extends "base.html" %}
 {% block title %}Créer le mot de passe — SpeedNote{% endblock %}
 {% block content %}
-<h1>Bienvenue dans SpeedNote</h1>
+<h1>🎒 Bienvenue dans SpeedNote</h1>
 <p>Première utilisation : choisissez un mot de passe maître. Il protège toutes les
 données saisies (notes, appréciations, noms d'élèves) : sans lui, personne ne peut
 les lire, <strong>y compris vous</strong>.</p>
-<p class="warning">Ce mot de passe n'est enregistré nulle part. S'il est oublié, les
+<p class="warning">🔐 Ce mot de passe n'est enregistré nulle part. S'il est oublié, les
 données sont définitivement perdues. Notez-le dans un endroit sûr (gestionnaire de
 mots de passe).</p>
 {% if error %}<p class="error">{{ error }}</p>{% endif %}
@@ -16,6 +16,6 @@ mots de passe).</p>
   <label>Confirmer le mot de passe
     <input type="password" name="passphrase_confirm" required minlength="8">
   </label>
-  <button type="submit">Créer et démarrer</button>
+  <button type="submit">🚀 Créer et démarrer</button>
 </form>
 {% endblock %}

@@ -54,8 +54,16 @@ def carnet(classe_id):
         for row in rows:
             notes_map[(row["devoir_id"], row["eleve_id"])] = row["valeur"]
 
+    def note_cellule(devoir, eleve_id):
+        valeur = notes_map.get((devoir["id"], eleve_id))
+        css = ""
+        if valeur is not None and devoir["bareme"]:
+            ratio = valeur / devoir["bareme"]
+            css = "note-bonne" if ratio >= 0.7 else "note-moyenne" if ratio >= 0.5 else "note-faible"
+        return {"valeur": valeur, "css": css}
+
     lignes = [
-        {"eleve": e, "notes": [notes_map.get((d["id"], e["id"])) for d in devoirs]}
+        {"eleve": e, "notes": [note_cellule(d, e["id"]) for d in devoirs]}
         for e in eleves
     ]
     return render_template(

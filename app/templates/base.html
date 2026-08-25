@@ -4,17 +4,23 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{% block title %}SpeedNote{% endblock %}</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8E%92%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
 <header class="topbar">
-  <a class="brand" href="{{ url_for('accueil.index') if store_unlocked else url_for('auth.deverrouiller') }}">SpeedNote</a>
+  <a class="brand" href="{{ url_for('accueil.index') if store_unlocked else url_for('auth.deverrouiller') }}">
+    <span class="brand-emoji">🎒</span>SpeedNote
+  </a>
   {% if store_unlocked %}
   <nav class="topnav">
-    <a href="{{ url_for('annees.liste') }}">Admin</a>
+    <a href="{{ url_for('annees.liste') }}">⚙️ Admin</a>
   </nav>
   <form method="post" action="{{ url_for('auth.verrouiller') }}" class="lock-form">
-    <button type="submit">Verrouiller</button>
+    <button type="submit" class="btn-ghost">🔒 Verrouiller</button>
   </form>
   {% endif %}
 </header>

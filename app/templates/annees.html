@@ -1,15 +1,15 @@
 {% extends "base.html" %}
 {% block title %}Années scolaires — SpeedNote{% endblock %}
 {% block content %}
-<h1>Années scolaires</h1>
+<h1>🎓 Années scolaires</h1>
 <form method="post" class="inline-form">
   <input type="text" name="libelle" placeholder="ex. 2025-2026" required>
-  <button type="submit">Ajouter</button>
+  <button type="submit">➕ Ajouter</button>
 </form>
 <ul class="list">
   {% for annee in annees %}
   <li>
-    <a href="{{ url_for('classes.liste', annee_id=annee['id']) }}">{{ annee['libelle'] }}</a>
+    <a href="{{ url_for('classes.liste', annee_id=annee['id']) }}">📅 {{ annee['libelle'] }}</a>
     <form method="post" action="{{ url_for('annees.supprimer', annee_id=annee['id']) }}"
           class="inline-form"
           onsubmit="return confirm('Supprimer cette année et toutes ses classes/élèves/devoirs ?');">
