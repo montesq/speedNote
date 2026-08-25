@@ -23,7 +23,7 @@ def creer(classe_id):
         conn.commit()
         store.save()
         return redirect(url_for("devoirs.saisie", devoir_id=cur.lastrowid))
-    return redirect(url_for("classes.detail", classe_id=classe_id))
+    return redirect(url_for("classes.carnet", classe_id=classe_id))
 
 
 @bp.route("/devoirs/<int:devoir_id>", methods=["GET", "POST"])
@@ -87,5 +87,5 @@ def supprimer(devoir_id):
     conn.commit()
     store.save()
     if row:
-        return redirect(url_for("classes.detail", classe_id=row["classe_id"]))
+        return redirect(url_for("classes.gerer", classe_id=row["classe_id"]))
     return redirect(url_for("annees.liste"))

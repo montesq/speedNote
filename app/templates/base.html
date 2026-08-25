@@ -8,8 +8,11 @@
 </head>
 <body>
 <header class="topbar">
-  <a class="brand" href="{{ url_for('annees.liste') }}">SpeedNote</a>
+  <a class="brand" href="{{ url_for('accueil.index') if store_unlocked else url_for('auth.deverrouiller') }}">SpeedNote</a>
   {% if store_unlocked %}
+  <nav class="topnav">
+    <a href="{{ url_for('annees.liste') }}">Admin</a>
+  </nav>
   <form method="post" action="{{ url_for('auth.verrouiller') }}" class="lock-form">
     <button type="submit">Verrouiller</button>
   </form>

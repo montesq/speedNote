@@ -10,7 +10,7 @@
 <ul class="list">
   {% for classe in classes %}
   <li>
-    <a href="{{ url_for('classes.detail', classe_id=classe['id']) }}">{{ classe['nom'] }}</a>
+    <a href="{{ url_for('classes.gerer', classe_id=classe['id']) }}">{{ classe['nom'] }}</a>
     <form method="post" action="{{ url_for('classes.supprimer', classe_id=classe['id']) }}"
           class="inline-form"
           onsubmit="return confirm('Supprimer cette classe et tout son contenu ?');">

@@ -9,17 +9,21 @@ def create_app() -> Flask:
     app = Flask(__name__)
     app.config["SECRET_KEY"] = _load_or_create_secret_key()
 
+    from .routes.accueil import bp as accueil_bp
     from .routes.annees import bp as annees_bp
     from .routes.auth import bp as auth_bp
     from .routes.classes import bp as classes_bp
     from .routes.devoirs import bp as devoirs_bp
     from .routes.eleves import bp as eleves_bp
+    from .routes.wizard import bp as wizard_bp
 
     app.register_blueprint(auth_bp)
+    app.register_blueprint(accueil_bp)
     app.register_blueprint(annees_bp)
     app.register_blueprint(classes_bp)
     app.register_blueprint(eleves_bp)
     app.register_blueprint(devoirs_bp)
+    app.register_blueprint(wizard_bp)
 
     @app.before_request
     def _guard():
@@ -34,10 +38,6 @@ def create_app() -> Flask:
     @app.context_processor
     def inject_globals():
         return {"store_unlocked": store.is_unlocked()}
-
-    @app.route("/")
-    def index():
-        return redirect(url_for("annees.liste"))
 
     return app
 
