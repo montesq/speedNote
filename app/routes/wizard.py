@@ -1,9 +1,19 @@
+from datetime import date
+
 from flask import Blueprint, redirect, render_template, request, url_for
 
 from .. import periodes, store
 from .eleves import add_eleves_bulk
 
 bp = Blueprint("wizard", __name__)
+
+
+def _annee_scolaire_suggeree() -> str:
+    """Année scolaire par défaut proposée : N/N+1 à partir du 1er juillet
+    de l'année N, sinon N-1/N (l'année scolaire en cours n'a pas encore basculé)."""
+    aujourdhui = date.today()
+    debut = aujourdhui.year if aujourdhui >= date(aujourdhui.year, 7, 1) else aujourdhui.year - 1
+    return f"{debut}-{debut + 1}"
 
 
 @bp.route("/wizard")
@@ -26,7 +36,11 @@ def accueil_wizard():
             (annee["id"],),
         ).fetchall()
     return render_template(
-        "wizard.html", annee=annee, classes=classes, systemes=periodes.LIBELLES_SYSTEME
+        "wizard.html",
+        annee=annee,
+        classes=classes,
+        systemes=periodes.LIBELLES_SYSTEME,
+        annee_suggeree=_annee_scolaire_suggeree(),
     )
 
 

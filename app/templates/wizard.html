@@ -7,7 +7,7 @@
 <p>Commençons par créer votre première année scolaire.</p>
 <form method="post" action="{{ url_for('wizard.creer_annee') }}">
   <label>Année scolaire (ex. 2025-2026)
-    <input type="text" name="libelle" placeholder="2025-2026" required autofocus>
+    <input type="text" name="libelle" value="{{ annee_suggeree }}" required autofocus>
   </label>
   <button type="submit">🚀 Créer l'année scolaire</button>
 </form>
