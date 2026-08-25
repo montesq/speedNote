@@ -93,6 +93,52 @@ def _trouver_eleve(transcript_norm: str, eleves):
 
 _NOTE_RE = re.compile(r"\b(\d{1,2}(?:[.,]\d)?)\b")
 
+# Mots de ponctuation dictés -> signe (ou saut de ligne) correspondant. Les
+# expressions les plus longues/spécifiques sont volontairement placées avant
+# les mots génériques ("point", "virgule") qu'elles contiennent, pour être
+# remplacées en premier (ex. "point d'exclamation" avant "point" seul).
+# ["’]? tolère l'apostrophe manquante ou différente selon la transcription.
+_PONCTUATION = [
+    (re.compile(r"\bpoints?\s+de\s+suspension\b", re.IGNORECASE), "..."),
+    (re.compile(r"\bpoint\s*d['’]?\s*exclamation\b", re.IGNORECASE), "!"),
+    (re.compile(r"\bpoint\s*d['’]?\s*interrogation\b", re.IGNORECASE), "?"),
+    (re.compile(r"\bpoint[\s-]virgule\b", re.IGNORECASE), ";"),
+    (re.compile(r"\bdeux\s+points\b", re.IGNORECASE), ":"),
+    (re.compile(r"\bvirgule\b", re.IGNORECASE), ","),
+    (re.compile(r"\bpoint\b", re.IGNORECASE), "."),
+    # "saut de ligne" avant "à la ligne" : aucun chevauchement entre les
+    # deux, l'ordre n'a pas d'importance ici, mais autant grouper les sauts
+    # de ligne ensemble.
+    (re.compile(r"\bsaut\s+de\s+ligne\b", re.IGNORECASE), "\n\n"),
+    (re.compile(r"\b[aà]\s+la\s+ligne\b", re.IGNORECASE), "\n"),
+]
+
+
+def _ponctuer(texte: str) -> str:
+    """Convertit les mots de ponctuation/saut de ligne dictés ("point",
+    "virgule", "à la ligne"...) en signes réels plutôt que de les laisser
+    en toutes lettres."""
+    for motif, signe in _PONCTUATION:
+        texte = motif.sub(signe, texte)
+    # Retire l'espace laissé avant le signe par le mot qu'il remplace.
+    texte = re.sub(r"\s+([.,!?;:])", r"\1", texte)
+    # Idem pour les espaces autour des sauts de ligne insérés.
+    texte = re.sub(r"[ \t]*\n[ \t]*", "\n", texte)
+    # Plafonne les sauts de ligne consécutifs à une seule ligne vide, même
+    # si "à la ligne" et "saut de ligne" sont dictés à la suite l'un de l'autre.
+    texte = re.sub(r"\n{3,}", "\n\n", texte)
+    return texte
+
+
+_DEBUT_PHRASE_RE = re.compile(r"(^|[.!?]\s+|\n+)([a-zàâäéèêëïîôöùûüÿçñ])")
+
+
+def _capitaliser_phrases(texte: str) -> str:
+    """Met une majuscule en début de texte et après chaque signe de fin de
+    phrase (. ! ?) ou saut de ligne — la reconnaissance vocale ne produit
+    que du texte en minuscules."""
+    return _DEBUT_PHRASE_RE.sub(lambda m: m.group(1) + m.group(2).upper(), texte)
+
 
 def parser(transcript: str, eleves):
     """Extrait élève, note et appréciation d'un transcript vocal.
@@ -122,8 +168,10 @@ def parser(transcript: str, eleves):
                 appreciation = re.sub(re.escape(morceau), "", appreciation, flags=re.IGNORECASE)
 
     appreciation = re.sub(r"\s+", " ", appreciation).strip(" ,.-")
-    if appreciation:
-        appreciation = appreciation[0].upper() + appreciation[1:]
+    # La ponctuation dictée est convertie après ce nettoyage, pour que les
+    # signes ajoutés ne soient jamais retirés par le strip() ci-dessus.
+    appreciation = _ponctuer(appreciation).strip()
+    appreciation = _capitaliser_phrases(appreciation)
 
     return {
         "eleve": eleve,
