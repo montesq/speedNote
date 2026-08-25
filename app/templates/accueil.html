@@ -2,15 +2,6 @@
 {% block title %}SpeedNote{% endblock %}
 {% block content %}
 <h1>🎓 {{ annee['libelle'] }}</h1>
-{% if classes %}
-<p>Choisissez une classe :</p>
-<ul class="classe-picker">
-  {% for c in classes %}
-  <li><a class="classe-link" href="{{ url_for('classes.carnet', classe_id=c['id']) }}">📘 {{ c['nom'] }}</a></li>
-  {% endfor %}
-</ul>
-{% else %}
 <p class="empty">🌱 Aucune classe pour cette année. Ajoutez-en une depuis
   <a href="{{ url_for('classes.liste', annee_id=annee['id']) }}">l'Admin</a>.</p>
-{% endif %}
 {% endblock %}

@@ -36,6 +36,10 @@ def carnet(classe_id):
     classe = conn.execute("SELECT * FROM classe WHERE id = ?", (classe_id,)).fetchone()
     if classe is None:
         return redirect(url_for("accueil.index"))
+    classes_annee = conn.execute(
+        "SELECT * FROM classe WHERE annee_scolaire_id = ? ORDER BY nom",
+        (classe["annee_scolaire_id"],),
+    ).fetchall()
     eleves = conn.execute(
         "SELECT * FROM eleve WHERE classe_id = ? ORDER BY nom, prenom", (classe_id,)
     ).fetchall()
@@ -67,7 +71,12 @@ def carnet(classe_id):
         for e in eleves
     ]
     return render_template(
-        "classe_carnet.html", classe=classe, eleves=eleves, devoirs=devoirs, lignes=lignes
+        "classe_carnet.html",
+        classe=classe,
+        classes_annee=classes_annee,
+        eleves=eleves,
+        devoirs=devoirs,
+        lignes=lignes,
     )
 
 

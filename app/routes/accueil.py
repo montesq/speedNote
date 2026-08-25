@@ -13,7 +13,10 @@ def index():
     ).fetchone()
     if annee is None:
         return redirect(url_for("wizard.accueil_wizard"))
-    classes = conn.execute(
-        "SELECT * FROM classe WHERE annee_scolaire_id = ? ORDER BY nom", (annee["id"],)
-    ).fetchall()
-    return render_template("accueil.html", annee=annee, classes=classes)
+    premiere_classe = conn.execute(
+        "SELECT id FROM classe WHERE annee_scolaire_id = ? ORDER BY nom LIMIT 1",
+        (annee["id"],),
+    ).fetchone()
+    if premiere_classe is None:
+        return render_template("accueil.html", annee=annee)
+    return redirect(url_for("classes.carnet", classe_id=premiere_classe["id"]))
