@@ -160,7 +160,13 @@
 <dialog id="modal-commentaire" class="modal modal-large">
   <h2 id="commentaire-titre"></h2>
   <div id="commentaire-corps"></div>
+  <div id="bilan-zone" hidden>
+    <h3>📝 Bilan pour le bulletin</h3>
+    <p id="bilan-statut" class="muted"></p>
+    <textarea id="bilan-texte" rows="4" placeholder="Le texte généré apparaîtra ici — modifiable avant de le copier dans le bulletin."></textarea>
+  </div>
   <div class="modal-actions">
+    <button type="button" class="btn-ghost" id="bilan-generer-btn" hidden>🪄 Générer Bilan</button>
     <button type="button" class="btn-ghost" onclick="document.getElementById('modal-commentaire').close()">Fermer</button>
   </div>
 </dialog>

@@ -4,6 +4,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const titreEl = document.getElementById("commentaire-titre");
   const corpsEl = document.getElementById("commentaire-corps");
+  const bilanBtn = document.getElementById("bilan-generer-btn");
+  const bilanZone = document.getElementById("bilan-zone");
+  const bilanTexte = document.getElementById("bilan-texte");
+  const bilanStatut = document.getElementById("bilan-statut");
+
+  let contexteBilan = null;
 
   function echapper(texte) {
     const div = document.createElement("div");
@@ -17,9 +23,14 @@ document.addEventListener("DOMContentLoaded", () => {
     return echapper(texte).replace(/\n/g, "<br>");
   }
 
-  function ouvrir(titre, html) {
+  function ouvrir(titre, html, bilan) {
     titreEl.textContent = titre;
     corpsEl.innerHTML = html;
+    contexteBilan = bilan;
+    bilanBtn.hidden = !bilan;
+    bilanZone.hidden = true;
+    bilanTexte.value = "";
+    bilanStatut.textContent = "";
     dialog.showModal();
     // showModal() donne le focus au bouton "Fermer" (seul élément
     // focusable), ce qui fait défiler la popup jusqu'à lui plutôt que de
@@ -30,7 +41,7 @@ document.addEventListener("DOMContentLoaded", () => {
   document.querySelectorAll(".note-comment-link:not(.moyenne-link)").forEach((btn) => {
     btn.addEventListener("click", () => {
       const appreciation = btn.dataset.appreciation || "Aucun commentaire.";
-      ouvrir("✏️ " + btn.dataset.titre, `<p>${formater(appreciation)}</p>`);
+      ouvrir("✏️ " + btn.dataset.titre, `<p>${formater(appreciation)}</p>`, null);
     });
   });
 
@@ -50,7 +61,32 @@ document.addEventListener("DOMContentLoaded", () => {
             })
             .join("")
         : "<p>Aucun devoir sur cette période.</p>";
-      ouvrir("📔 " + btn.dataset.eleveNom, html);
+      ouvrir("📔 " + btn.dataset.eleveNom, html, { nom: btn.dataset.eleveNom, commentaires: notes });
     });
+  });
+
+  bilanBtn.addEventListener("click", async () => {
+    if (!contexteBilan) return;
+    bilanZone.hidden = false;
+    bilanTexte.value = "";
+    bilanStatut.textContent = "⏳ Génération en cours, cela peut prendre jusqu'à quelques minutes…";
+    bilanBtn.disabled = true;
+    try {
+      const formData = new FormData();
+      formData.append("nom", contexteBilan.nom);
+      formData.append("commentaires", JSON.stringify(contexteBilan.commentaires));
+      const response = await fetch("/bilan/generer", { method: "POST", body: formData });
+      const data = await response.json();
+      if (!response.ok || data.erreur) {
+        bilanStatut.textContent = "⚠️ " + (data.erreur || "Échec de la génération.");
+      } else {
+        bilanTexte.value = data.bilan;
+        bilanStatut.textContent = "";
+      }
+    } catch (err) {
+      bilanStatut.textContent = "❌ Échec de la génération.";
+    } finally {
+      bilanBtn.disabled = false;
+    }
   });
 });

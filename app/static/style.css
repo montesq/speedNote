@@ -340,6 +340,10 @@ table.carnet td.carnet-moyenne, table.carnet th:last-child {
 dialog.modal-large { max-width: 46rem; }
 dialog.modal-voice textarea { min-height: 22rem; resize: vertical; }
 
+#bilan-zone { margin-top: 1rem; border-top: 1px solid var(--border); padding-top: 1rem; }
+#bilan-zone h3 { margin: 0 0 0.3rem; font-size: 1rem; }
+#bilan-texte { width: 100%; resize: vertical; font-family: inherit; }
+
 .voice-status {
   display: flex;
   align-items: center;

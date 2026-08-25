@@ -1,6 +1,8 @@
-from flask import Blueprint, redirect, render_template, request, url_for
+import json
 
-from .. import periodes, store, types_devoir
+from flask import Blueprint, jsonify, redirect, render_template, request, url_for
+
+from .. import bilan, periodes, store, types_devoir
 
 bp = Blueprint("classes", __name__)
 
@@ -178,3 +180,23 @@ def supprimer(classe_id):
     if row:
         return redirect(url_for("classes.liste", annee_id=row["annee_scolaire_id"]))
     return redirect(url_for("annees.liste"))
+
+
+@bp.route("/bilan/generer", methods=["POST"])
+def generer_bilan():
+    """Synthèse en 3 phrases des appréciations d'un élève sur une période,
+    pour le bulletin. Les commentaires sont transmis tels quels par le
+    client (déjà chargés dans la popup du carnet) : aucune requête base
+    n'est nécessaire ici."""
+    nom = request.form.get("nom", "").strip()
+    try:
+        commentaires = json.loads(request.form.get("commentaires", "[]"))
+    except (TypeError, ValueError):
+        commentaires = []
+
+    try:
+        texte = bilan.generer_bilan(nom, commentaires)
+    except bilan.BilanError as exc:
+        return jsonify({"erreur": str(exc)}), 500
+
+    return jsonify({"bilan": texte})

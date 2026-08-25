@@ -30,6 +30,7 @@ cd ~/Dev/SpeedNote
 python3 -m venv venv
 venv/bin/pip install -r requirements.txt
 ./scripts/download_vosk_model.sh   # modèle de reconnaissance vocale (~41 Mo, une seule fois)
+./scripts/download_llm_model.sh    # modèle de synthèse pour le bilan élève (~770 Mo, une seule fois)
 ```
 
 ## Utilisation au quotidien (raccourcis)
