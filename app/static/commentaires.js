@@ -21,6 +21,10 @@ document.addEventListener("DOMContentLoaded", () => {
     titreEl.textContent = titre;
     corpsEl.innerHTML = html;
     dialog.showModal();
+    // showModal() donne le focus au bouton "Fermer" (seul élément
+    // focusable), ce qui fait défiler la popup jusqu'à lui plutôt que de
+    // l'afficher depuis le début.
+    dialog.scrollTop = 0;
   }
 
   document.querySelectorAll(".note-comment-link:not(.moyenne-link)").forEach((btn) => {
