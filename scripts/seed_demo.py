@@ -21,7 +21,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from app import store  # noqa: E402
+from app import periodes, store  # noqa: E402
 
 PASSPHRASE_DEFAULT = "demo1234"
 
@@ -31,41 +31,83 @@ SYSTEME_PAR_CLASSE = {
     "Terminale C": "semestre",
 }
 
-CLASSES = {
-    "2nde A": [
-        ("Dupuis", "Camille"), ("Nguyen", "Léa"), ("Martin", "Hugo"),
-        ("Bernard", "Inès"), ("Petit", "Nathan"), ("Robert", "Chloé"),
-        ("Moreau", "Enzo"), ("Simon", "Manon"), ("Laurent", "Adam"),
-        ("Lefebvre", "Jade"), ("Michel", "Louis"), ("Garcia", "Zoé"),
-    ],
-    "1re B": [
-        ("Roux", "Sacha"), ("Fournier", "Lina"), ("Girard", "Tom"),
-        ("Bonnet", "Emma"), ("Dupont", "Noah"), ("Lambert", "Rose"),
-        ("Fontaine", "Léon"), ("Rousseau", "Alice"), ("Vincent", "Gabin"),
-        ("Muller", "Anna"), ("Faure", "Timéo"), ("André", "Julia"),
-    ],
-    "Terminale C": [
-        ("Blanc", "Maël"), ("Guerin", "Iris"), ("Boyer", "Paul"),
-        ("Meyer", "Léna"),
-    ],
+NOMBRE_ELEVES_PAR_CLASSE = 36
+NOMBRE_DEVOIRS_PAR_PERIODE = 5
+
+# Prénoms et noms représentatifs de la diversité réelle d'une classe de
+# lycée français aujourd'hui (plutôt qu'un roster exclusivement "gaulois").
+PRENOMS = [
+    "Aya", "Yanis", "Fatoumata", "Mehdi", "Chloé", "Ibrahim", "Léa", "Adama",
+    "Nour", "Enzo", "Sofia", "Rayan", "Inès", "Mohamed", "Camille", "Amir",
+    "Zineb", "Lucas", "Kenza", "Malo", "Amina", "Yuki", "Théo", "Meriem",
+    "Noah", "Hana", "Idriss", "Manon", "Souleymane", "Jade", "Bilal", "Léna",
+    "Karim", "Alice", "Ismaël", "Nina", "Aleksander", "Maya", "Diego", "Salma",
+    "Hugo", "Aïcha", "Gabriel", "Zoé", "Moussa", "Louise", "Wassim", "Julia",
+    "Rania", "Matteo", "Fanta", "Adam", "Ela", "Sacha", "Imane", "Elias",
+    "Awa", "Nathan", "Sarah", "Younes", "Emma", "Ayoub", "Lina", "Kofi",
+    "Naomi", "Reda", "Anaïs", "Driss", "Clara", "Mamadou", "Lily", "Yassine",
+]
+NOMS = [
+    "Traoré", "Diallo", "Benali", "Nguyen", "Silva", "Kaya", "Martins",
+    "Haddad", "Popescu", "Fofana", "Cissé", "Rodrigues", "Amrani", "Ferreira",
+    "Bouzid", "Koné", "Yıldız", "Camara", "Chen", "Bakır", "Ndiaye", "Costa",
+    "Sow", "El Idrissi", "Wang", "Kovač", "Barry", "Correia", "Touré",
+    "Belhaj", "Diarra", "Nowak", "Petrov", "García", "Lopes", "Şahin",
+    "Diakité", "Boukhalfa", "Ribeiro", "Coulibaly", "Meziane", "Aksoy",
+    "Onana", "Duarte", "Keita", "Andrade", "Mansour", "Zhang", "Okafor",
+    # quelques noms plus "traditionnellement français" mêlés au reste, pour
+    # rester réaliste sans en faire l'écrasante majorité du roster.
+    "Petit", "Bernard", "Lefebvre", "Moreau",
+]
+
+def generer_eleves(rng, n=NOMBRE_ELEVES_PAR_CLASSE):
+    """n couples (nom, prénom) distincts, tirés des pools ci-dessus."""
+    noms = rng.sample(NOMS, n)
+    prenoms = rng.sample(PRENOMS, n)
+    return list(zip(noms, prenoms))
+
+
+# Types de devoirs (titre, coefficient habituel), piochés pour composer 5
+# devoirs par période. Un même type peut revenir d'une période à l'autre,
+# ce qui est réaliste (plusieurs dissertations dans l'année, etc.).
+TITRES_DEVOIRS = [
+    ("Contrôle de lecture", 1),
+    ("Explication linéaire", 1),
+    ("Dissertation", 2),
+    ("Commentaire de texte", 2),
+    ("Question de grammaire", 1),
+    ("Écriture d'invention", 1),
+    ("Devoir sur table", 2),
+    ("Entraînement à l'oral", 1),
+    ("Étude de la langue", 1),
+    ("Analyse d'image", 1),
+    ("Dictée préparée", 1),
+    ("Rédaction argumentative", 2),
+]
+
+# Dates réparties sur chaque période de l'année scolaire 2025-2026.
+DATES_PAR_PERIODE = {
+    "T1": ["2025-09-15", "2025-09-29", "2025-10-13", "2025-10-27", "2025-11-17"],
+    "T2": ["2025-12-01", "2025-12-15", "2026-01-12", "2026-01-26", "2026-02-09"],
+    "T3": ["2026-02-23", "2026-03-16", "2026-04-13", "2026-05-04", "2026-05-25"],
+    "S1": ["2025-09-15", "2025-10-13", "2025-11-10", "2025-12-08", "2026-01-12"],
+    "S2": ["2026-02-09", "2026-03-09", "2026-04-13", "2026-05-11", "2026-06-08"],
 }
 
-DEVOIRS_PAR_CLASSE = {
-    "2nde A": [
-        ("Contrôle de lecture — Candide", "2025-09-22", 1, "T1"),
-        ("Explication linéaire n°1", "2025-10-10", 1, "T1"),
-        ("Dissertation — La Fontaine", "2025-11-14", 2, "T2"),
-    ],
-    "1re B": [
-        ("Commentaire — Les Fleurs du mal", "2025-09-18", 2, "S1"),
-        ("Question de grammaire", "2025-10-02", 1, "S1"),
-        ("Dissertation blanche", "2025-11-20", 3, "S2"),
-    ],
-    "Terminale C": [
-        ("Explication linéaire — Spleen", "2025-09-25", 2, "S1"),
-        ("Dissertation — Le roman", "2025-10-30", 3, "S2"),
-    ],
-}
+
+def generer_devoirs(rng, systeme):
+    """5 devoirs (titre, date, coefficient, période) pour chaque période du
+    système (trimestre ou semestre)."""
+    devoirs = []
+    for periode in periodes.periodes_pour(systeme):
+        titres = rng.sample(TITRES_DEVOIRS, NOMBRE_DEVOIRS_PAR_PERIODE)
+        coefficients = [1, 1, 2, 2, 3]
+        rng.shuffle(coefficients)
+        dates = DATES_PAR_PERIODE[periode]
+        for i, (titre, _) in enumerate(titres):
+            devoirs.append((titre, dates[i], coefficients[i], periode))
+    return devoirs
+
 
 # Commentaires longs (~250-300 mots), représentatifs de la volumétrie réelle
 # d'une appréciation détaillée de dissertation/commentaire/explication linéaire.
@@ -332,22 +374,22 @@ def main():
     cur = conn.execute("INSERT INTO annee_scolaire (libelle) VALUES (?)", ("2025-2026",))
     annee_id = cur.lastrowid
 
-    for nom_classe, eleves in CLASSES.items():
+    for nom_classe, systeme in SYSTEME_PAR_CLASSE.items():
         cur = conn.execute(
             "INSERT INTO classe (annee_scolaire_id, nom, systeme_periode) VALUES (?, ?, ?)",
-            (annee_id, nom_classe, SYSTEME_PAR_CLASSE[nom_classe]),
+            (annee_id, nom_classe, systeme),
         )
         classe_id = cur.lastrowid
 
         eleve_ids = []
-        for nom, prenom in eleves:
+        for nom, prenom in generer_eleves(rng):
             cur = conn.execute(
                 "INSERT INTO eleve (classe_id, nom, prenom) VALUES (?, ?, ?)",
                 (classe_id, nom, prenom),
             )
             eleve_ids.append(cur.lastrowid)
 
-        for titre, date_devoir, coefficient, periode in DEVOIRS_PAR_CLASSE[nom_classe]:
+        for titre, date_devoir, coefficient, periode in generer_devoirs(rng, systeme):
             cur = conn.execute(
                 "INSERT INTO devoir (classe_id, titre, date_devoir, coefficient, periode) VALUES (?, ?, ?, ?, ?)",
                 (classe_id, titre, date_devoir, coefficient, periode),
@@ -366,7 +408,8 @@ def main():
 
     print("Jeu de données factices créé avec succès.")
     print(f"  Mot de passe : {passphrase}")
-    print(f"  Année : 2025-2026 — Classes : {', '.join(CLASSES)}")
+    print(f"  Année : 2025-2026 — Classes : {', '.join(SYSTEME_PAR_CLASSE)}")
+    print(f"  {NOMBRE_ELEVES_PAR_CLASSE} élèves/classe, {NOMBRE_DEVOIRS_PAR_PERIODE} devoirs/période")
     return 0
 
 

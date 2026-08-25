@@ -24,7 +24,7 @@
   </form>
   {% endif %}
 </header>
-<main>
+<main class="{% block main_class %}{% endblock %}">
   {% with messages = get_flashed_messages() %}
     {% if messages %}
       <ul class="flash">

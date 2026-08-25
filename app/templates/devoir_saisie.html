@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block title %}{{ devoir['titre'] }} — SpeedNote{% endblock %}
+{% block main_class %}main-wide{% endblock %}
 {% block content %}
 <p><a href="{{ url_for('classes.carnet', classe_id=classe['id'], periode=devoir['periode']) }}">&larr; {{ classe['nom'] }}</a></p>
 <h1>✏️ {{ devoir['titre'] }}{% if devoir['date_devoir'] %} — {{ devoir['date_devoir'] }}{% endif %}</h1>
@@ -11,39 +12,25 @@
          step="0.5" min="0.5">
 </p>
 
-<div class="table-scroll">
-<table class="grid">
-  <thead>
-    <tr><th>Élève</th><th>Note</th></tr>
-  </thead>
-  <tbody>
-    {% for ligne in lignes %}
-    <tr>
-      <td>{{ ligne['nom'] }} {{ ligne['prenom'] }}</td>
-      <td>
-        <button type="button" class="note-link"
-                data-eleve-id="{{ ligne['eleve_id'] }}"
-                data-eleve-nom="{{ ligne['nom'] }} {{ ligne['prenom'] }}"
-                data-valeur="{{ ligne['valeur'] if ligne['valeur'] is not none else '' }}"
-                data-appreciation="{{ ligne['appreciation'] or '' }}">
-          {{ ligne['valeur'] if ligne['valeur'] is not none else '—' }}
-        </button>
-      </td>
-    </tr>
-    {% else %}
-    <tr><td colspan="2" class="empty">Aucun élève dans cette classe.</td></tr>
-    {% endfor %}
-  </tbody>
-  {% if lignes %}
-  <tfoot>
-    <tr>
-      <td><strong>Moyenne</strong></td>
-      <td><strong>{{ moyenne if moyenne is not none else '—' }}</strong></td>
-    </tr>
-  </tfoot>
-  {% endif %}
-</table>
-</div>
+{% if not lignes %}
+<p class="empty">Aucun élève dans cette classe.</p>
+{% else %}
+<ul class="eleve-grid">
+  {% for ligne in lignes %}
+  <li>
+    <span class="eleve-nom">{{ ligne['nom'] }} {{ ligne['prenom'] }}</span>
+    <button type="button" class="note-link"
+            data-eleve-id="{{ ligne['eleve_id'] }}"
+            data-eleve-nom="{{ ligne['nom'] }} {{ ligne['prenom'] }}"
+            data-valeur="{{ ligne['valeur'] if ligne['valeur'] is not none else '' }}"
+            data-appreciation="{{ ligne['appreciation'] or '' }}">
+      {{ ligne['valeur'] if ligne['valeur'] is not none else '—' }}
+    </button>
+  </li>
+  {% endfor %}
+</ul>
+<p class="devoir-moyenne">📊 Moyenne : <strong>{{ moyenne if moyenne is not none else '—' }}</strong></p>
+{% endif %}
 
 {% if lignes %}
 <a href="{{ url_for('devoirs.generer_rapports', devoir_id=devoir['id']) }}" class="btn btn-cta">📄 Générer les rapports</a>

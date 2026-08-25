@@ -70,6 +70,7 @@ main {
   margin: 0 auto;
   padding: 1.75rem 1.5rem 3rem;
 }
+main.main-wide { max-width: 1280px; }
 
 h1 {
   font-family: var(--font-fun);
@@ -286,9 +287,17 @@ table.grid tfoot td { border-top: 2px solid var(--secondary); border-bottom: non
   border-radius: var(--radius);
   box-shadow: 0 2px 8px rgba(45, 42, 58, 0.06);
 }
-table.carnet th, table.carnet td { white-space: nowrap; }
+table.carnet th, table.carnet td { padding: 0.45rem 0.4rem; }
+table.carnet td { white-space: nowrap; }
+table.carnet th {
+  white-space: normal;
+  max-width: 6.5rem;
+  font-weight: 700;
+  line-height: 1.25;
+}
 table.carnet th:first-child, table.carnet td:first-child {
   white-space: normal;
+  max-width: none;
   position: sticky;
   left: 0;
   background: var(--panel);
@@ -411,4 +420,35 @@ dialog.modal-voice textarea { min-height: 22rem; resize: vertical; }
   width: 4rem;
   padding: 0.25rem 0.5rem;
   text-align: center;
+}
+
+.eleve-grid {
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
+  gap: 0.15rem 1.5rem;
+}
+.eleve-grid li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.35rem 0.5rem;
+  border-bottom: 1px dashed var(--border);
+}
+.eleve-nom {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.devoir-moyenne {
+  font-family: var(--font-fun);
+  font-size: 1.15rem;
+  color: var(--accent-dark);
+  padding: 0.7rem 0;
+  margin-top: 0.5rem;
+  border-top: 2px solid var(--secondary);
 }
