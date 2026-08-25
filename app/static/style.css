@@ -149,6 +149,33 @@ button.danger:hover { background: var(--danger-dark); }
 }
 .btn-ghost:hover { background: var(--bg); color: var(--text); transform: none; }
 
+.btn-cta {
+  background: var(--secondary);
+  box-shadow: 0 3px 0 var(--secondary-dark);
+  font-size: 1.05rem;
+}
+.btn-cta:hover { background: var(--secondary-dark); }
+
+dialog.modal {
+  border: none;
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  max-width: 26rem;
+  width: calc(100% - 2rem);
+  box-shadow: 0 12px 32px rgba(45, 42, 58, 0.25);
+}
+dialog.modal::backdrop {
+  background: rgba(45, 42, 58, 0.45);
+}
+dialog.modal h2 { margin-top: 0; }
+dialog.modal form { margin: 0; }
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  margin-top: 1rem;
+}
+
 table.grid { width: 100%; border-collapse: separate; border-spacing: 0; margin: 1rem 0; }
 table.grid th, table.grid td { border-bottom: 1px solid var(--border); padding: 0.55rem 0.6rem; text-align: left; }
 table.grid th {
