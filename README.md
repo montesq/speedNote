@@ -79,9 +79,28 @@ mot de passe maître pour être exploitée.
 
 ## Utilisation
 
-1. Créer une **année scolaire** (ex. « 2025-2026 »).
-2. Dans l'année, créer une ou plusieurs **classes**.
-3. Dans une classe, ajouter les **élèves** (un par ligne, "Nom Prénom").
-4. Créer un **devoir** (titre, date, barème), puis saisir note et
-   appréciation pour chaque élève dans la grille — la touche Entrée passe au
-   champ suivant, et enregistre automatiquement en fin de tableau.
+### Première ouverture
+
+Après la création du mot de passe maître, un petit assistant de configuration
+s'affiche : il permet de créer la première année scolaire, puis d'ajouter les
+classes et, pour chacune, les élèves (un par ligne, "Nom Prénom"). Une fois la
+configuration terminée, il n'est plus jamais montré — les mêmes réglages
+restent accessibles à tout moment depuis **Admin**.
+
+### Au quotidien
+
+- L'écran d'accueil propose de choisir une classe.
+- Chaque classe s'ouvre sur son **carnet de notes** : la liste des élèves,
+  avec pour chaque devoir la note obtenue. C'est aussi depuis cet écran que
+  se crée un nouveau **devoir** (titre, date, barème) — la création amène
+  directement sur la grille de saisie note + appréciation par élève, où la
+  touche Entrée passe au champ suivant et enregistre en fin de tableau.
+- Cliquer sur le titre d'un devoir dans le carnet rouvre cette grille pour
+  corriger une note ou une appréciation.
+
+### Admin
+
+Le lien **Admin** (en haut de l'écran) donne accès aux écrans de
+configuration : années scolaires, classes, élèves et suppression des
+devoirs — pour ajouter une classe en cours d'année, gérer les élèves, ou
+préparer l'année scolaire suivante.

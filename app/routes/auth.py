@@ -28,7 +28,7 @@ def demarrage():
                 "Base créée et déverrouillée avec votre mot de passe. "
                 "Notez-le précieusement : il ne pourra pas être récupéré."
             )
-            return redirect(url_for("annees.liste"))
+            return redirect(url_for("accueil.index"))
     return render_template("demarrage.html", error=error)
 
 
@@ -38,7 +38,7 @@ def deverrouiller():
     if not store.is_initialized():
         return redirect(url_for("auth.demarrage"))
     if store.is_unlocked():
-        return redirect(url_for("annees.liste"))
+        return redirect(url_for("accueil.index"))
     error = None
     if request.method == "POST":
         wait = _current_backoff()
@@ -48,7 +48,7 @@ def deverrouiller():
             pw = request.form.get("passphrase", "")
             if store.unlock(pw):
                 _failed_attempts = 0
-                return redirect(url_for("annees.liste"))
+                return redirect(url_for("accueil.index"))
             _failed_attempts += 1
             _last_failure = time.monotonic()
             error = "Mot de passe incorrect."

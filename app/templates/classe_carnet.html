@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}{{ classe['nom'] }} — SpeedNote{% endblock %}
+{% block content %}
+<p>
+  <a href="{{ url_for('accueil.index') }}">&larr; Changer de classe</a> ·
+  <a href="{{ url_for('classes.gerer', classe_id=classe['id']) }}">Gérer la classe</a>
+</p>
+<h1>{{ classe['nom'] }}</h1>
+
+{% if not eleves %}
+<p class="empty">Aucun élève dans cette classe. Ajoutez-en depuis
+  <a href="{{ url_for('classes.gerer', classe_id=classe['id']) }}">Gérer la classe</a>.</p>
+{% else %}
+<div class="table-scroll">
+<table class="grid carnet">
+  <thead>
+    <tr>
+      <th>Élève</th>
+      {% for d in devoirs %}
+      <th>
+        <a href="{{ url_for('devoirs.saisie', devoir_id=d['id']) }}">{{ d['titre'] }}</a>
+        <br><span class="muted">/{{ d['bareme'] }}</span>
+      </th>
+      {% endfor %}
+    </tr>
+  </thead>
+  <tbody>
+    {% for ligne in lignes %}
+    <tr>
+      <td>{{ ligne.eleve['nom'] }} {{ ligne.eleve['prenom'] }}</td>
+      {% for note in ligne.notes %}
+      <td>{{ note if note is not none else '—' }}</td>
+      {% endfor %}
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+</div>
+{% if not devoirs %}
+<p class="empty">Aucun devoir pour cette classe pour le moment.</p>
+{% endif %}
+{% endif %}
+
+<h2>Ajouter un devoir</h2>
+<form method="post" action="{{ url_for('devoirs.creer', classe_id=classe['id']) }}" class="devoir-form">
+  <input type="text" name="titre" placeholder="Titre du devoir" required>
+  <input type="date" name="date_devoir">
+  <input type="number" name="bareme" value="20" step="0.5" min="1">
+  <button type="submit">Créer le devoir</button>
+</form>
+{% endblock %}

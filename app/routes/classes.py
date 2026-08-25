@@ -30,11 +30,46 @@ def liste(annee_id):
 
 
 @bp.route("/classes/<int:classe_id>")
-def detail(classe_id):
+def carnet(classe_id):
+    """Écran par défaut : élèves de la classe, note pour chaque devoir."""
     conn = store.get_conn()
     classe = conn.execute("SELECT * FROM classe WHERE id = ?", (classe_id,)).fetchone()
     if classe is None:
-        return redirect(url_for("annees.liste"))
+        return redirect(url_for("accueil.index"))
+    eleves = conn.execute(
+        "SELECT * FROM eleve WHERE classe_id = ? ORDER BY nom, prenom", (classe_id,)
+    ).fetchall()
+    devoirs = conn.execute(
+        "SELECT * FROM devoir WHERE classe_id = ? ORDER BY date_devoir, id", (classe_id,)
+    ).fetchall()
+
+    notes_map = {}
+    if devoirs:
+        devoir_ids = [d["id"] for d in devoirs]
+        placeholders = ",".join("?" * len(devoir_ids))
+        rows = conn.execute(
+            f"SELECT devoir_id, eleve_id, valeur FROM note WHERE devoir_id IN ({placeholders})",
+            devoir_ids,
+        ).fetchall()
+        for row in rows:
+            notes_map[(row["devoir_id"], row["eleve_id"])] = row["valeur"]
+
+    lignes = [
+        {"eleve": e, "notes": [notes_map.get((d["id"], e["id"])) for d in devoirs]}
+        for e in eleves
+    ]
+    return render_template(
+        "classe_carnet.html", classe=classe, eleves=eleves, devoirs=devoirs, lignes=lignes
+    )
+
+
+@bp.route("/classes/<int:classe_id>/gerer")
+def gerer(classe_id):
+    """Écran d'administration : élèves et devoirs de la classe."""
+    conn = store.get_conn()
+    classe = conn.execute("SELECT * FROM classe WHERE id = ?", (classe_id,)).fetchone()
+    if classe is None:
+        return redirect(url_for("accueil.index"))
     eleves = conn.execute(
         "SELECT * FROM eleve WHERE classe_id = ? ORDER BY nom, prenom", (classe_id,)
     ).fetchall()
@@ -42,7 +77,7 @@ def detail(classe_id):
         "SELECT * FROM devoir WHERE classe_id = ? ORDER BY date_devoir DESC, id DESC",
         (classe_id,),
     ).fetchall()
-    return render_template("classe.html", classe=classe, eleves=eleves, devoirs=devoirs)
+    return render_template("classe_gerer.html", classe=classe, eleves=eleves, devoirs=devoirs)
 
 
 @bp.route("/classes/<int:classe_id>/supprimer", methods=["POST"])

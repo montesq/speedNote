@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Configuration initiale — SpeedNote{% endblock %}
+{% block content %}
+<h1>Configuration initiale</h1>
+
+{% if annee is none %}
+<p>Bienvenue ! Commençons par créer votre première année scolaire.</p>
+<form method="post" action="{{ url_for('wizard.creer_annee') }}">
+  <label>Année scolaire (ex. 2025-2026)
+    <input type="text" name="libelle" placeholder="2025-2026" required autofocus>
+  </label>
+  <button type="submit">Créer l'année scolaire</button>
+</form>
+
+{% else %}
+<p>Année scolaire : <strong>{{ annee['libelle'] }}</strong></p>
+<p>Ajoutez vos classes, puis les élèves de chacune. Vous pourrez toujours en
+ajouter ou en modifier plus tard depuis le menu Admin.</p>
+
+{% if classes %}
+<ul class="wizard-classes">
+  {% for c in classes %}
+  <li class="wizard-classe">
+    <div class="wizard-classe-header">
+      <strong>{{ c['nom'] }}</strong>
+      <span class="muted">{{ c['nb_eleves'] }} élève{{ 's' if c['nb_eleves'] != 1 else '' }}</span>
+    </div>
+    <form method="post" action="{{ url_for('wizard.ajouter_eleves', classe_id=c['id']) }}">
+      <textarea name="bulk" rows="3" placeholder="Dupont Marie&#10;Martin Lucas"></textarea>
+      <button type="submit">Ajouter des élèves</button>
+    </form>
+  </li>
+  {% endfor %}
+</ul>
+{% endif %}
+
+<form method="post" action="{{ url_for('wizard.creer_classe', annee_id=annee['id']) }}" class="inline-form">
+  <input type="text" name="nom" placeholder="Nouvelle classe, ex. 3e B" required>
+  <button type="submit">Ajouter la classe</button>
+</form>
+
+<form method="post" action="{{ url_for('wizard.terminer') }}">
+  <button type="submit">Terminer la configuration →</button>
+</form>
+{% endif %}
+{% endblock %}

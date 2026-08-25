@@ -5,12 +5,10 @@ from .. import store
 bp = Blueprint("eleves", __name__)
 
 
-@bp.route("/classes/<int:classe_id>/eleves", methods=["POST"])
-def ajouter(classe_id):
-    conn = store.get_conn()
-    bulk = request.form.get("bulk", "")
+def add_eleves_bulk(conn, classe_id, bulk_text):
+    """Ajoute des élèves depuis un texte "un par ligne, Nom Prénom". Retourne le nombre ajouté."""
     added = 0
-    for line in bulk.splitlines():
+    for line in bulk_text.splitlines():
         line = line.strip()
         if not line:
             continue
@@ -24,8 +22,16 @@ def ajouter(classe_id):
         added += 1
     if added:
         conn.commit()
+    return added
+
+
+@bp.route("/classes/<int:classe_id>/eleves", methods=["POST"])
+def ajouter(classe_id):
+    conn = store.get_conn()
+    added = add_eleves_bulk(conn, classe_id, request.form.get("bulk", ""))
+    if added:
         store.save()
-    return redirect(url_for("classes.detail", classe_id=classe_id))
+    return redirect(url_for("classes.gerer", classe_id=classe_id))
 
 
 @bp.route("/eleves/<int:eleve_id>/modifier", methods=["POST"])
@@ -43,7 +49,7 @@ def modifier(eleve_id):
         conn.commit()
         store.save()
     if row:
-        return redirect(url_for("classes.detail", classe_id=row["classe_id"]))
+        return redirect(url_for("classes.gerer", classe_id=row["classe_id"]))
     return redirect(url_for("annees.liste"))
 
 
@@ -57,5 +63,5 @@ def supprimer(eleve_id):
     conn.commit()
     store.save()
     if row:
-        return redirect(url_for("classes.detail", classe_id=row["classe_id"]))
+        return redirect(url_for("classes.gerer", classe_id=row["classe_id"]))
     return redirect(url_for("annees.liste"))

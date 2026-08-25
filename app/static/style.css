@@ -35,6 +35,10 @@ body {
   text-decoration: none;
 }
 
+.topnav { margin-left: auto; margin-right: 1rem; }
+.topnav a { color: var(--accent-dark); text-decoration: none; font-weight: 600; }
+.topnav a:hover { text-decoration: underline; }
+
 main {
   max-width: 760px;
   margin: 0 auto;
@@ -97,4 +101,44 @@ table.grid input:focus { border-color: var(--accent); background: #fff; outline:
   border: 1px solid #f0d78c;
   padding: 0.6rem;
   border-radius: 6px;
+}
+
+.muted { color: var(--muted); font-size: 0.85rem; }
+
+.wizard-classes { list-style: none; padding: 0; margin: 1rem 0; }
+.wizard-classe {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.75rem;
+  margin-bottom: 0.75rem;
+  background: var(--panel);
+}
+.wizard-classe-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 0.5rem;
+}
+
+.classe-picker { list-style: none; padding: 0; }
+.classe-picker li { margin-bottom: 0.5rem; }
+.classe-link {
+  display: block;
+  padding: 0.75rem 1rem;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  text-decoration: none;
+  color: var(--accent-dark);
+  font-weight: 600;
+}
+.classe-link:hover { border-color: var(--accent); }
+
+.table-scroll { overflow-x: auto; margin: 1rem 0; }
+table.carnet th, table.carnet td { white-space: nowrap; }
+table.carnet th:first-child, table.carnet td:first-child {
+  white-space: normal;
+  position: sticky;
+  left: 0;
+  background: var(--panel);
 }
