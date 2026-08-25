@@ -164,6 +164,8 @@ dialog.modal {
   padding: 1.5rem;
   max-width: 26rem;
   width: calc(100% - 2rem);
+  max-height: calc(100vh - 4rem);
+  overflow-y: auto;
   box-shadow: 0 12px 32px rgba(45, 42, 58, 0.25);
 }
 dialog.modal::backdrop {
@@ -190,6 +192,7 @@ table.grid thead th:first-child { border-top-left-radius: var(--radius); }
 table.grid thead th:last-child { border-top-right-radius: var(--radius); }
 table.grid tbody tr:nth-child(even) { background: #fffaf3; }
 table.grid tfoot td { border-top: 2px solid var(--secondary); border-bottom: none; font-family: var(--font-fun); }
+
 
 .note-link {
   background: none;
@@ -325,8 +328,8 @@ table.carnet td.carnet-moyenne, table.carnet th:last-child {
 .commentaire-item strong { color: var(--secondary-dark); font-family: var(--font-fun); }
 .commentaire-item p { margin: 0.2rem 0 0; }
 
-dialog.modal-voice { max-width: 32rem; }
-dialog.modal-voice textarea { min-height: 8rem; resize: vertical; }
+dialog.modal-large { max-width: 46rem; }
+dialog.modal-voice textarea { min-height: 22rem; resize: vertical; }
 
 .voice-status {
   display: flex;

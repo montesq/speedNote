@@ -11,6 +11,12 @@ document.addEventListener("DOMContentLoaded", () => {
     return div.innerHTML;
   }
 
+  // Le texte est échappé (protection XSS) puis les sauts de ligne sont
+  // convertis en <br> pour être visibles dans le rendu.
+  function formater(texte) {
+    return echapper(texte).replace(/\n/g, "<br>");
+  }
+
   function ouvrir(titre, html) {
     titreEl.textContent = titre;
     corpsEl.innerHTML = html;
@@ -20,7 +26,7 @@ document.addEventListener("DOMContentLoaded", () => {
   document.querySelectorAll(".note-comment-link:not(.moyenne-link)").forEach((btn) => {
     btn.addEventListener("click", () => {
       const appreciation = btn.dataset.appreciation || "Aucun commentaire.";
-      ouvrir("✏️ " + btn.dataset.titre, `<p>${echapper(appreciation)}</p>`);
+      ouvrir("✏️ " + btn.dataset.titre, `<p>${formater(appreciation)}</p>`);
     });
   });
 
@@ -36,7 +42,7 @@ document.addEventListener("DOMContentLoaded", () => {
         ? notes
             .map((n) => {
               const appreciation = n.appreciation || "Aucun commentaire.";
-              return `<div class="commentaire-item"><strong>${echapper(n.devoir_titre)}</strong><p>${echapper(appreciation)}</p></div>`;
+              return `<div class="commentaire-item"><strong>${echapper(n.devoir_titre)}</strong><p>${formater(appreciation)}</p></div>`;
             })
             .join("")
         : "<p>Aucun devoir sur cette période.</p>";

@@ -8,7 +8,7 @@
 <div class="table-scroll">
 <table class="grid">
   <thead>
-    <tr><th>Élève</th><th>Note</th><th>Appréciation</th></tr>
+    <tr><th>Élève</th><th>Note</th></tr>
   </thead>
   <tbody>
     {% for ligne in lignes %}
@@ -23,10 +23,9 @@
           {{ ligne['valeur'] if ligne['valeur'] is not none else '—' }}
         </button>
       </td>
-      <td>{{ ligne['appreciation'] or '—' }}</td>
     </tr>
     {% else %}
-    <tr><td colspan="3" class="empty">Aucun élève dans cette classe.</td></tr>
+    <tr><td colspan="2" class="empty">Aucun élève dans cette classe.</td></tr>
     {% endfor %}
   </tbody>
   {% if lignes %}
@@ -34,7 +33,6 @@
     <tr>
       <td><strong>Moyenne</strong></td>
       <td><strong>{{ moyenne if moyenne is not none else '—' }}</strong></td>
-      <td></td>
     </tr>
   </tfoot>
   {% endif %}
@@ -44,7 +42,7 @@
 {% if lignes %}
 <a href="{{ url_for('devoirs.generer_rapports', devoir_id=devoir['id']) }}" class="btn btn-cta">📄 Générer les rapports</a>
 
-<dialog id="modal-edit-note" class="modal modal-voice" data-devoir-id="{{ devoir['id'] }}">
+<dialog id="modal-edit-note" class="modal modal-voice modal-large" data-devoir-id="{{ devoir['id'] }}">
   <div id="voice-recording-view" hidden>
     <h2>🎤 Nouvel enregistrement</h2>
     <div class="vu-meter">
@@ -67,7 +65,7 @@
       <input type="text" inputmode="decimal" name="valeur" id="voice-valeur-input">
     </label>
     <label>Commentaire
-      <textarea name="appreciation" id="voice-appreciation-input" rows="6"></textarea>
+      <textarea name="appreciation" id="voice-appreciation-input" rows="14"></textarea>
     </label>
     <div class="modal-actions">
       <button type="button" class="btn-ghost" id="voice-close-btn">Fermer</button>
