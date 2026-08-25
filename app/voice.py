@@ -14,12 +14,15 @@ from pathlib import Path
 from typing import Optional
 
 import vosk
+from spellchecker import SpellChecker
 from text_to_num import alpha2digit
 
 MODEL_DIR = Path(__file__).resolve().parent.parent / "models" / "vosk-model-small-fr-0.22"
 SAMPLE_RATE = 16000
 
 _model: Optional["vosk.Model"] = None
+_spell: Optional[SpellChecker] = None
+_spell_indisponible = False
 
 
 class TranscriptionError(Exception):
@@ -37,6 +40,19 @@ def _get_model():
         vosk.SetLogLevel(-1)
         _model = vosk.Model(str(MODEL_DIR))
     return _model
+
+
+def _get_spellchecker():
+    """Charge le correcteur orthographique français (paresseux, une seule
+    fois). Purement local — aucun appel réseau. En cas d'échec de
+    chargement, la correction est simplement désactivée sans planter."""
+    global _spell, _spell_indisponible
+    if _spell is None and not _spell_indisponible:
+        try:
+            _spell = SpellChecker(language="fr")
+        except Exception:
+            _spell_indisponible = True
+    return _spell
 
 
 def _to_pcm16(audio_bytes: bytes) -> bytes:
@@ -76,6 +92,30 @@ def _sans_accents(texte: str) -> str:
     ).lower()
 
 
+def _retirer_insensible_accents(texte: str, motif: str) -> str:
+    """Retire toutes les occurrences de `motif` dans `texte`, en ignorant
+    la casse et les accents (Vosk ne restitue pas toujours les accents des
+    noms propres, ex. "traore" au lieu de "Traoré"). Le retrait se fait par
+    position sur le texte original (non normalisé) : la normalisation
+    accent/casse préserve la longueur caractère par caractère pour les
+    lettres latines accentuées usuelles, donc les positions trouvées dans
+    la version normalisée restent valides sur le texte d'origine."""
+    motif_norm = _sans_accents(motif)
+    if not motif_norm:
+        return texte
+    texte_norm = _sans_accents(texte)
+    resultat = []
+    i = 0
+    longueur = len(motif_norm)
+    while i < len(texte_norm):
+        if texte_norm[i:i + longueur] == motif_norm:
+            i += longueur
+        else:
+            resultat.append(texte[i])
+            i += 1
+    return "".join(resultat)
+
+
 def _trouver_eleve(transcript_norm: str, eleves):
     """Cherche, parmi les élèves, celui dont le nom apparaît dans le transcript."""
     meilleur = None
@@ -89,6 +129,28 @@ def _trouver_eleve(transcript_norm: str, eleves):
                 meilleur = eleve
                 meilleure_longueur = len(candidat)
     return meilleur
+
+
+_MOT_RE = re.compile(r"[a-zàâäéèêëïîôöùûüÿçñ]+", re.IGNORECASE)
+
+
+def _corriger_orthographe(texte: str) -> str:
+    """Corrige les fautes probables (dues à la reconnaissance vocale ou à
+    de vraies fautes de frappe) via un dictionnaire français local. Les
+    mots déjà reconnus par le dictionnaire — y compris la plupart des noms
+    propres usuels — ne sont jamais modifiés, pour limiter les faux positifs."""
+    spell = _get_spellchecker()
+    if spell is None:
+        return texte
+
+    def _corriger_mot(m):
+        mot = m.group(0)
+        if len(mot) < 3 or mot.lower() in spell:
+            return mot
+        correction = spell.correction(mot.lower())
+        return correction if correction else mot
+
+    return _MOT_RE.sub(_corriger_mot, texte)
 
 
 _NOTE_RE = re.compile(r"\b(\d{1,2}(?:[.,]\d)?)\b")
@@ -165,9 +227,10 @@ def parser(transcript: str, eleves):
     if eleve is not None:
         for morceau in (eleve["nom"], eleve["prenom"]):
             if morceau:
-                appreciation = re.sub(re.escape(morceau), "", appreciation, flags=re.IGNORECASE)
+                appreciation = _retirer_insensible_accents(appreciation, morceau)
 
     appreciation = re.sub(r"\s+", " ", appreciation).strip(" ,.-")
+    appreciation = _corriger_orthographe(appreciation)
     # La ponctuation dictée est convertie après ce nettoyage, pour que les
     # signes ajoutés ne soient jamais retirés par le strip() ci-dessus.
     appreciation = _ponctuer(appreciation).strip()
