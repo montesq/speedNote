@@ -1,6 +1,6 @@
 from flask import Blueprint, redirect, render_template, request, url_for
 
-from .. import periodes, store
+from .. import periodes, store, types_devoir
 
 bp = Blueprint("classes", __name__)
 
@@ -127,6 +127,9 @@ def carnet(classe_id):
         lignes=lignes,
         moyennes_devoirs=moyennes_devoirs,
         moyenne_classe_periode=moyenne_classe_periode,
+        types_devoir=types_devoir.TYPES,
+        sous_types_devoir=types_devoir.SOUS_TYPES,
+        types_avec_sous_type=list(types_devoir.TYPES_AVEC_SOUS_TYPE),
     )
 
 

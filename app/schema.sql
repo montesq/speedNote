@@ -25,6 +25,8 @@ CREATE TABLE devoir (
     date_devoir TEXT,
     coefficient REAL NOT NULL DEFAULT 1,
     periode TEXT NOT NULL DEFAULT 'T1',
+    type TEXT NOT NULL DEFAULT 'Commentaire',
+    sous_type TEXT,
     sujet_nom_fichier TEXT,
     sujet_type_mime TEXT,
     sujet_fichier BLOB

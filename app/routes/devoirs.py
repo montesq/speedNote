@@ -12,7 +12,7 @@ from flask import (
     url_for,
 )
 
-from .. import periodes, rapports, store, voice
+from .. import periodes, rapports, store, types_devoir, voice
 
 bp = Blueprint("devoirs", __name__)
 
@@ -36,6 +36,9 @@ def creer(classe_id):
     if periode not in periodes.periodes_pour(classe["systeme_periode"]):
         periode = periodes.periode_par_defaut(conn, classe)
 
+    type_ = types_devoir.type_valide(request.form.get("type", ""))
+    sous_type = types_devoir.sous_type_valide(type_, request.form.get("sous_type", ""))
+
     sujet_nom_fichier = None
     sujet_type_mime = None
     sujet_fichier = None
@@ -48,12 +51,12 @@ def creer(classe_id):
     if titre:
         cur = conn.execute(
             """
-            INSERT INTO devoir (classe_id, titre, date_devoir, coefficient, periode,
+            INSERT INTO devoir (classe_id, titre, date_devoir, coefficient, periode, type, sous_type,
                                  sujet_nom_fichier, sujet_type_mime, sujet_fichier)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
-                classe_id, titre, date_devoir or None, coefficient, periode,
+                classe_id, titre, date_devoir or None, coefficient, periode, type_, sous_type,
                 sujet_nom_fichier, sujet_type_mime, sujet_fichier,
             ),
         )

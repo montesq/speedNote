@@ -112,6 +112,21 @@
         {% endfor %}
       </select>
     </label>
+    <label>Type
+      <select name="type" id="devoir-type-select" data-types-avec-sous-type='{{ types_avec_sous_type | tojson }}'>
+        {% for t in types_devoir %}
+        <option value="{{ t }}">{{ t }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label id="devoir-sous-type-label" hidden>Sous-type
+      <select name="sous_type" id="devoir-sous-type-select">
+        <option value="">—</option>
+        {% for st in sous_types_devoir %}
+        <option value="{{ st }}">{{ st }}</option>
+        {% endfor %}
+      </select>
+    </label>
     <label>Sujet du devoir (optionnel, 20 Mo max)
       <input type="file" name="sujet">
     </label>
@@ -133,4 +148,5 @@
 
 <script src="{{ url_for('static', filename='modal.js') }}"></script>
 <script src="{{ url_for('static', filename='commentaires.js') }}"></script>
+<script src="{{ url_for('static', filename='devoir_type.js') }}"></script>
 {% endblock %}
