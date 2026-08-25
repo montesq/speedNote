@@ -1,9 +1,9 @@
 {% extends "base.html" %}
 {% block title %}{{ devoir['titre'] }} — SpeedNote{% endblock %}
 {% block content %}
-<p><a href="{{ url_for('classes.carnet', classe_id=classe['id']) }}">&larr; {{ classe['nom'] }}</a></p>
+<p><a href="{{ url_for('classes.carnet', classe_id=classe['id'], periode=devoir['periode']) }}">&larr; {{ classe['nom'] }}</a></p>
 <h1>✏️ {{ devoir['titre'] }}{% if devoir['date_devoir'] %} — {{ devoir['date_devoir'] }}{% endif %}</h1>
-<p>Barème : /{{ devoir['bareme'] }}</p>
+<p>Période {{ devoir['periode'] }} · Barème : /{{ devoir['bareme'] }}</p>
 
 <div class="table-scroll">
 <table class="grid">

@@ -85,18 +85,22 @@ mot de passe maître pour être exploitée.
 
 Après la création du mot de passe maître, un petit assistant de configuration
 s'affiche : il permet de créer la première année scolaire, puis d'ajouter les
-classes et, pour chacune, les élèves (un par ligne, "Nom Prénom"). Une fois la
-configuration terminée, il n'est plus jamais montré — les mêmes réglages
+classes (en choisissant pour chacune son système de périodes — trimestres ou
+semestres) et, pour chacune, les élèves (un par ligne, "Nom Prénom"). Une fois
+la configuration terminée, il n'est plus jamais montré — les mêmes réglages
 restent accessibles à tout moment depuis **Admin**.
 
 ### Au quotidien
 
 - L'écran d'accueil propose de choisir une classe.
-- Chaque classe s'ouvre sur son **carnet de notes** : la liste des élèves,
-  avec pour chaque devoir la note obtenue. C'est aussi depuis cet écran que
-  se crée un nouveau **devoir** (titre, date, barème) — la création amène
-  directement sur la grille de saisie note + appréciation par élève, où la
-  touche Entrée passe au champ suivant et enregistre en fin de tableau.
+- Chaque classe s'ouvre sur son **carnet de notes**, filtré par **période**
+  (trimestre ou semestre selon la classe) : la liste des élèves, avec pour
+  chaque devoir de la période la note obtenue. La période affichée par
+  défaut est celle du dernier devoir saisi ; un menu déroulant permet d'en
+  choisir une autre. C'est aussi depuis cet écran que se crée un nouveau
+  **devoir** (titre, date, barème, période — pré-remplie avec la période du
+  dernier devoir de la classe) — la création amène directement sur la
+  grille de saisie note + appréciation par élève.
 - Cliquer sur le titre d'un devoir dans le carnet rouvre cette grille pour
   corriger une note ou une appréciation.
 - Sur la page d'un devoir, le bouton **🎤 Commentaire vocal** permet de

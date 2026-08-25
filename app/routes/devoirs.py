@@ -1,6 +1,6 @@
 from flask import Blueprint, Response, flash, jsonify, redirect, render_template, request, url_for
 
-from .. import rapports, store, voice
+from .. import periodes, rapports, store, voice
 
 bp = Blueprint("devoirs", __name__)
 
@@ -8,6 +8,10 @@ bp = Blueprint("devoirs", __name__)
 @bp.route("/classes/<int:classe_id>/devoirs", methods=["POST"])
 def creer(classe_id):
     conn = store.get_conn()
+    classe = conn.execute("SELECT * FROM classe WHERE id = ?", (classe_id,)).fetchone()
+    if classe is None:
+        return redirect(url_for("accueil.index"))
+
     titre = request.form.get("titre", "").strip()
     date_devoir = request.form.get("date_devoir", "").strip()
     bareme_raw = request.form.get("bareme", "20").strip().replace(",", ".")
@@ -15,15 +19,20 @@ def creer(classe_id):
         bareme = float(bareme_raw) if bareme_raw else 20.0
     except ValueError:
         bareme = 20.0
+
+    periode = request.form.get("periode", "")
+    if periode not in periodes.periodes_pour(classe["systeme_periode"]):
+        periode = periodes.periode_par_defaut(conn, classe)
+
     if titre:
         cur = conn.execute(
-            "INSERT INTO devoir (classe_id, titre, date_devoir, bareme) VALUES (?, ?, ?, ?)",
-            (classe_id, titre, date_devoir or None, bareme),
+            "INSERT INTO devoir (classe_id, titre, date_devoir, bareme, periode) VALUES (?, ?, ?, ?, ?)",
+            (classe_id, titre, date_devoir or None, bareme, periode),
         )
         conn.commit()
         store.save()
         return redirect(url_for("devoirs.saisie", devoir_id=cur.lastrowid))
-    return redirect(url_for("classes.carnet", classe_id=classe_id))
+    return redirect(url_for("classes.carnet", classe_id=classe_id, periode=periode))
 
 
 @bp.route("/devoirs/<int:devoir_id>")

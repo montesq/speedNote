@@ -25,6 +25,12 @@ from app import store  # noqa: E402
 
 PASSPHRASE_DEFAULT = "demo1234"
 
+SYSTEME_PAR_CLASSE = {
+    "2nde A": "trimestre",
+    "1re B": "semestre",
+    "Terminale C": "semestre",
+}
+
 CLASSES = {
     "2nde A": [
         ("Dupuis", "Camille"), ("Nguyen", "Léa"), ("Martin", "Hugo"),
@@ -46,18 +52,18 @@ CLASSES = {
 
 DEVOIRS_PAR_CLASSE = {
     "2nde A": [
-        ("Contrôle de lecture — Candide", "2025-09-22", 20),
-        ("Explication linéaire n°1", "2025-10-10", 20),
-        ("Dissertation — La Fontaine", "2025-11-14", 20),
+        ("Contrôle de lecture — Candide", "2025-09-22", 20, "T1"),
+        ("Explication linéaire n°1", "2025-10-10", 20, "T1"),
+        ("Dissertation — La Fontaine", "2025-11-14", 20, "T2"),
     ],
     "1re B": [
-        ("Commentaire — Les Fleurs du mal", "2025-09-18", 20),
-        ("Question de grammaire", "2025-10-02", 10),
-        ("Dissertation blanche", "2025-11-20", 20),
+        ("Commentaire — Les Fleurs du mal", "2025-09-18", 20, "S1"),
+        ("Question de grammaire", "2025-10-02", 10, "S1"),
+        ("Dissertation blanche", "2025-11-20", 20, "S2"),
     ],
     "Terminale C": [
-        ("Explication linéaire — Spleen", "2025-09-25", 20),
-        ("Dissertation — Le roman", "2025-10-30", 20),
+        ("Explication linéaire — Spleen", "2025-09-25", 20, "S1"),
+        ("Dissertation — Le roman", "2025-10-30", 20, "S2"),
     ],
 }
 
@@ -112,8 +118,8 @@ def main():
 
     for nom_classe, eleves in CLASSES.items():
         cur = conn.execute(
-            "INSERT INTO classe (annee_scolaire_id, nom) VALUES (?, ?)",
-            (annee_id, nom_classe),
+            "INSERT INTO classe (annee_scolaire_id, nom, systeme_periode) VALUES (?, ?, ?)",
+            (annee_id, nom_classe, SYSTEME_PAR_CLASSE[nom_classe]),
         )
         classe_id = cur.lastrowid
 
@@ -125,10 +131,10 @@ def main():
             )
             eleve_ids.append(cur.lastrowid)
 
-        for titre, date_devoir, bareme in DEVOIRS_PAR_CLASSE[nom_classe]:
+        for titre, date_devoir, bareme, periode in DEVOIRS_PAR_CLASSE[nom_classe]:
             cur = conn.execute(
-                "INSERT INTO devoir (classe_id, titre, date_devoir, bareme) VALUES (?, ?, ?, ?)",
-                (classe_id, titre, date_devoir, bareme),
+                "INSERT INTO devoir (classe_id, titre, date_devoir, bareme, periode) VALUES (?, ?, ?, ?, ?)",
+                (classe_id, titre, date_devoir, bareme, periode),
             )
             devoir_id = cur.lastrowid
 

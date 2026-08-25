@@ -1,6 +1,6 @@
 from flask import Blueprint, redirect, render_template, request, url_for
 
-from .. import store
+from .. import periodes, store
 from .eleves import add_eleves_bulk
 
 bp = Blueprint("wizard", __name__)
@@ -25,7 +25,9 @@ def accueil_wizard():
             """,
             (annee["id"],),
         ).fetchall()
-    return render_template("wizard.html", annee=annee, classes=classes)
+    return render_template(
+        "wizard.html", annee=annee, classes=classes, systemes=periodes.LIBELLES_SYSTEME
+    )
 
 
 @bp.route("/wizard/annee", methods=["POST"])
@@ -43,10 +45,11 @@ def creer_annee():
 def creer_classe(annee_id):
     conn = store.get_conn()
     nom = request.form.get("nom", "").strip()
+    systeme_periode = periodes.systeme_valide(request.form.get("systeme_periode"))
     if nom:
         conn.execute(
-            "INSERT INTO classe (annee_scolaire_id, nom) VALUES (?, ?)",
-            (annee_id, nom),
+            "INSERT INTO classe (annee_scolaire_id, nom, systeme_periode) VALUES (?, ?, ?)",
+            (annee_id, nom, systeme_periode),
         )
         conn.commit()
         store.save()

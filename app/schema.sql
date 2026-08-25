@@ -7,6 +7,7 @@ CREATE TABLE classe (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     annee_scolaire_id INTEGER NOT NULL REFERENCES annee_scolaire(id) ON DELETE CASCADE,
     nom TEXT NOT NULL,
+    systeme_periode TEXT NOT NULL DEFAULT 'trimestre',
     UNIQUE(annee_scolaire_id, nom)
 );
 
@@ -22,7 +23,8 @@ CREATE TABLE devoir (
     classe_id INTEGER NOT NULL REFERENCES classe(id) ON DELETE CASCADE,
     titre TEXT NOT NULL,
     date_devoir TEXT,
-    bareme REAL NOT NULL DEFAULT 20
+    bareme REAL NOT NULL DEFAULT 20,
+    periode TEXT NOT NULL DEFAULT 'T1'
 );
 
 CREATE TABLE note (

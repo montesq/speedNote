@@ -5,12 +5,18 @@
 <h1>📘 Classes — {{ annee['libelle'] }}</h1>
 <form method="post" class="inline-form">
   <input type="text" name="nom" placeholder="ex. 3e B" required>
+  <select name="systeme_periode">
+    {% for valeur, libelle in systemes.items() %}
+    <option value="{{ valeur }}">{{ libelle }}</option>
+    {% endfor %}
+  </select>
   <button type="submit">➕ Ajouter une classe</button>
 </form>
 <ul class="list">
   {% for classe in classes %}
   <li>
     <a href="{{ url_for('classes.gerer', classe_id=classe['id']) }}">📘 {{ classe['nom'] }}</a>
+    <span class="muted">{{ systemes[classe['systeme_periode']] }}</span>
     <form method="post" action="{{ url_for('classes.supprimer', classe_id=classe['id']) }}"
           class="inline-form"
           onsubmit="return confirm('Supprimer cette classe et tout son contenu ?');">

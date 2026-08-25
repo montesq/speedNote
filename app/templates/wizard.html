@@ -36,6 +36,11 @@ ajouter ou en modifier plus tard depuis le menu Admin.</p>
 
 <form method="post" action="{{ url_for('wizard.creer_classe', annee_id=annee['id']) }}" class="inline-form">
   <input type="text" name="nom" placeholder="Nouvelle classe, ex. 3e B" required>
+  <select name="systeme_periode">
+    {% for valeur, libelle in systemes.items() %}
+    <option value="{{ valeur }}">{{ libelle }}</option>
+    {% endfor %}
+  </select>
   <button type="submit">➕ Ajouter la classe</button>
 </form>
 

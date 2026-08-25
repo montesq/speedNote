@@ -1,6 +1,6 @@
 from flask import Blueprint, redirect, render_template, request, url_for
 
-from .. import store
+from .. import periodes, store
 
 bp = Blueprint("classes", __name__)
 
@@ -15,10 +15,11 @@ def liste(annee_id):
         return redirect(url_for("annees.liste"))
     if request.method == "POST":
         nom = request.form.get("nom", "").strip()
+        systeme_periode = periodes.systeme_valide(request.form.get("systeme_periode"))
         if nom:
             conn.execute(
-                "INSERT INTO classe (annee_scolaire_id, nom) VALUES (?, ?)",
-                (annee_id, nom),
+                "INSERT INTO classe (annee_scolaire_id, nom, systeme_periode) VALUES (?, ?, ?)",
+                (annee_id, nom, systeme_periode),
             )
             conn.commit()
             store.save()
@@ -26,12 +27,14 @@ def liste(annee_id):
     classes = conn.execute(
         "SELECT * FROM classe WHERE annee_scolaire_id = ? ORDER BY nom", (annee_id,)
     ).fetchall()
-    return render_template("classes.html", annee=annee, classes=classes)
+    return render_template(
+        "classes.html", annee=annee, classes=classes, systemes=periodes.LIBELLES_SYSTEME
+    )
 
 
 @bp.route("/classes/<int:classe_id>")
 def carnet(classe_id):
-    """Écran par défaut : élèves de la classe, note pour chaque devoir."""
+    """Écran par défaut : élèves de la classe, note pour chaque devoir d'une période."""
     conn = store.get_conn()
     classe = conn.execute("SELECT * FROM classe WHERE id = ?", (classe_id,)).fetchone()
     if classe is None:
@@ -40,11 +43,19 @@ def carnet(classe_id):
         "SELECT * FROM classe WHERE annee_scolaire_id = ? ORDER BY nom",
         (classe["annee_scolaire_id"],),
     ).fetchall()
+
+    periodes_disponibles = periodes.periodes_pour(classe["systeme_periode"])
+    periode_defaut = periodes.periode_par_defaut(conn, classe)
+    periode = request.args.get("periode")
+    if periode not in periodes_disponibles:
+        periode = periode_defaut
+
     eleves = conn.execute(
         "SELECT * FROM eleve WHERE classe_id = ? ORDER BY nom, prenom", (classe_id,)
     ).fetchall()
     devoirs = conn.execute(
-        "SELECT * FROM devoir WHERE classe_id = ? ORDER BY date_devoir, id", (classe_id,)
+        "SELECT * FROM devoir WHERE classe_id = ? AND periode = ? ORDER BY date_devoir, id",
+        (classe_id, periode),
     ).fetchall()
 
     notes_map = {}
@@ -74,6 +85,9 @@ def carnet(classe_id):
         "classe_carnet.html",
         classe=classe,
         classes_annee=classes_annee,
+        periodes_disponibles=periodes_disponibles,
+        periode=periode,
+        periode_defaut=periode_defaut,
         eleves=eleves,
         devoirs=devoirs,
         lignes=lignes,
