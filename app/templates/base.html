@@ -32,6 +32,15 @@
   </div>
 </nav>
 <main class="{% block main_class %}container{% endblock %} pb-5">
+  {% if mise_a_jour.disponible %}
+  <div class="alert alert-primary d-flex flex-wrap align-items-center justify-content-between gap-3">
+    <div>
+      <strong>Une nouvelle version de SpeedNote est disponible.</strong>
+      {% if mise_a_jour.resume %}<div class="small text-body-secondary">{{ mise_a_jour.resume }}</div>{% endif %}
+    </div>
+    <button type="button" class="btn btn-primary btn-sm" id="maj-appliquer-btn">Mettre à jour maintenant</button>
+  </div>
+  {% endif %}
   {% with messages = get_flashed_messages() %}
     {% if messages %}
       {% for m in messages %}
@@ -44,5 +53,6 @@
 <div class="toast-container position-fixed bottom-0 start-50 translate-middle-x p-3" style="z-index: 1080;" id="toast-container" aria-live="polite"></div>
 <script src="{{ url_for('static', filename='vendor/bootstrap/bootstrap.bundle.min.js') }}"></script>
 <script src="{{ url_for('static', filename='toast.js') }}"></script>
+<script src="{{ url_for('static', filename='maj.js') }}"></script>
 </body>
 </html>

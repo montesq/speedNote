@@ -119,6 +119,22 @@ configuration : années scolaires, classes, élèves et suppression des
 devoirs — pour ajouter une classe en cours d'année, gérer les élèves, ou
 préparer l'année scolaire suivante.
 
+### Mises à jour
+
+L'application vérifie toutes les 30 minutes si une nouvelle version est
+disponible sur le dépôt git (seule vérification qui touche le réseau —
+un simple `git fetch`, aucune donnée de l'application n'est transmise).
+Si c'est le cas, un bandeau apparaît en haut de l'écran avec un bouton
+**Mettre à jour maintenant** : le code est téléchargé (`git pull`), les
+dépendances réinstallées, puis l'application redémarre automatiquement
+(quelques secondes d'indisponibilité). Le mot de passe est à ressaisir
+après un redémarrage, comme à chaque lancement.
+
+⚠️ Limite connue : un changement de structure de la base de données
+apporté par une mise à jour n'est pas migré automatiquement (voir la
+gestion des changements de schéma plus bas). À garder en tête avant de
+déployer une mise à jour de ce type sur la machine de production.
+
 ## Développement : jeu de données de test
 
 Pour explorer l'application sans repasser par l'assistant de configuration à

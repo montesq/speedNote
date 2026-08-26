@@ -2,7 +2,7 @@ import os
 
 from flask import Flask, redirect, request, url_for
 
-from . import store
+from . import store, update_checker
 
 
 def create_app() -> Flask:
@@ -16,6 +16,7 @@ def create_app() -> Flask:
     from .routes.classes import bp as classes_bp
     from .routes.devoirs import bp as devoirs_bp
     from .routes.eleves import bp as eleves_bp
+    from .routes.mise_a_jour import bp as mise_a_jour_bp
     from .routes.wizard import bp as wizard_bp
 
     app.register_blueprint(auth_bp)
@@ -24,11 +25,14 @@ def create_app() -> Flask:
     app.register_blueprint(classes_bp)
     app.register_blueprint(eleves_bp)
     app.register_blueprint(devoirs_bp)
+    app.register_blueprint(mise_a_jour_bp)
     app.register_blueprint(wizard_bp)
+
+    ROUTES_LIBRES = ("auth.demarrage", "auth.deverrouiller", "static", "mise_a_jour.appliquer")
 
     @app.before_request
     def _guard():
-        if request.endpoint in ("auth.demarrage", "auth.deverrouiller", "static"):
+        if request.endpoint in ROUTES_LIBRES:
             return None
         if not store.is_initialized():
             return redirect(url_for("auth.demarrage"))
@@ -38,7 +42,7 @@ def create_app() -> Flask:
 
     @app.context_processor
     def inject_globals():
-        return {"store_unlocked": store.is_unlocked()}
+        return {"store_unlocked": store.is_unlocked(), "mise_a_jour": update_checker.etat()}
 
     return app
 
