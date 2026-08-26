@@ -209,6 +209,10 @@ hr { border-color: var(--sn-n800); opacity: 1; }
   padding: 0;
 }
 .btn-link:hover { color: var(--sn-accent-300); }
+
+.btn-ghost { color: var(--sn-accent); }
+.btn-ghost:hover { background: var(--sn-accent-900); }
+
 .btn:disabled, .btn.disabled { opacity: 0.45; }
 
 /* ── Formulaires ─────────────────────────────────────────────────── */
@@ -358,6 +362,25 @@ textarea.form-control { line-height: 1.6; resize: vertical; }
 .badge.bg-secondary, .badge.text-bg-secondary { background: var(--sn-n900) !important; color: var(--sn-n300) !important; }
 .badge.bg-primary, .badge.text-bg-primary { background: var(--sn-accent-900) !important; color: var(--sn-accent-200) !important; }
 
+.offcanvas {
+  background: var(--sn-surface);
+  color: var(--sn-text);
+}
+.offcanvas-header, .offcanvas-footer { border-color: var(--sn-n800); }
+
+/* Étiquettes : type/sous-type de devoir, période, note dans la grille */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.6875rem;
+  letter-spacing: 0.02em;
+  padding: 0.19rem 0.625rem;
+  border-radius: 6px;
+}
+.tag-accent { background: var(--sn-accent-800); color: var(--sn-accent-100); }
+.tag-neutral { background: var(--sn-n800); color: var(--sn-n100); }
+.tag-outline { border: 1px solid var(--sn-accent); color: var(--sn-accent); }
+
 /* ════════════════════════════════════════════════════════════════════
    Classes propres à SpeedNote
    ════════════════════════════════════════════════════════════════════ */
@@ -397,45 +420,45 @@ table.carnet th a:hover { color: var(--sn-accent-300); }
 }
 
 /* Grille des élèves de l'écran de saisie */
-.eleve-grid {
-  list-style: none;
-  padding: 0;
-  margin: 1rem 0;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
-  gap: 0.2rem 1.05rem;
-}
-.eleve-grid li {
+.eleve-carte {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.5rem;
-  padding: 0.45rem 0.7rem;
-  border-bottom: none;
+  gap: 0.75rem;
+  padding: 0.6rem 0.85rem;
   border-radius: var(--sn-radius);
   background: var(--sn-n900);
-  transition: background-color 120ms ease, box-shadow 120ms ease;
+  border: 1px solid transparent;
+  text-align: left;
+  color: var(--sn-text);
+  transition: background-color 120ms ease, border-color 120ms ease;
 }
-.eleve-grid li:hover {
+.eleve-carte:hover, .eleve-carte:focus-visible {
   background: var(--sn-surface);
-  box-shadow: inset 0 0 0 1px var(--sn-n700);
+  border-color: var(--sn-n700);
 }
-.eleve-grid li:focus-within {
-  background: var(--sn-surface);
-  box-shadow: inset 0 0 0 1px var(--sn-accent);
+.eleve-carte-nom {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.875rem;
 }
-.eleve-nom { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.875rem; }
-.eleve-grid .btn {
-  border: none;
-  background: transparent;
-  color: var(--sn-accent-300);
+.eleve-carte-appreciation {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.75rem;
+  color: var(--sn-n500);
+  margin-top: 0.1rem;
+}
+.eleve-carte-valeur {
+  flex: none;
   font-variant-numeric: tabular-nums;
+  font-weight: 500;
   font-size: 0.9375rem;
-  min-width: 3rem;
-  justify-content: flex-end;
-  padding: 0.1rem 0.2rem;
 }
-.eleve-grid .btn:hover { background: transparent; color: var(--sn-accent-100); }
 
 /* Dictée */
 .voice-status {

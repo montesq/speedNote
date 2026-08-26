@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
   const dialogEl = document.getElementById("modal-edit-note");
   if (!dialogEl) return;
-  const dialog = bootstrap.Modal.getOrCreateInstance(dialogEl);
+  const dialog = bootstrap.Offcanvas.getOrCreateInstance(dialogEl);
 
   const devoirId = dialogEl.dataset.devoirId;
 
@@ -194,5 +194,5 @@ document.addEventListener("DOMContentLoaded", () => {
     showEditView();
   });
   closeBtn.addEventListener("click", closeDialog);
-  dialogEl.addEventListener("hidden.bs.modal", abandonRecording);
+  dialogEl.addEventListener("hidden.bs.offcanvas", abandonRecording);
 });

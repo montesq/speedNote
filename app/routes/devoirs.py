@@ -76,7 +76,7 @@ def saisie(devoir_id):
     classe = conn.execute(
         "SELECT * FROM classe WHERE id = ?", (devoir["classe_id"],)
     ).fetchone()
-    lignes = conn.execute(
+    rows = conn.execute(
         """
         SELECT eleve.id AS eleve_id, eleve.nom, eleve.prenom,
                note.valeur, note.appreciation
@@ -87,6 +87,24 @@ def saisie(devoir_id):
         """,
         (devoir_id, devoir["classe_id"]),
     ).fetchall()
+
+    def tag_note(valeur):
+        if valeur is None:
+            return ""
+        ratio = valeur / 20
+        return "tag-accent" if ratio >= 0.7 else "tag-neutral" if ratio >= 0.5 else "tag-outline"
+
+    lignes = [
+        {
+            "eleve_id": row["eleve_id"],
+            "nom": row["nom"],
+            "prenom": row["prenom"],
+            "valeur": row["valeur"],
+            "appreciation": row["appreciation"],
+            "tag": tag_note(row["valeur"]),
+        }
+        for row in rows
+    ]
 
     valeurs = [ligne["valeur"] for ligne in lignes if ligne["valeur"] is not None]
     moyenne = round(sum(valeurs) / len(valeurs), 2) if valeurs else None

@@ -2,81 +2,111 @@
 {% block title %}{{ devoir['titre'] }} — SpeedNote{% endblock %}
 {% block main_class %}container-fluid{% endblock %}
 {% block content %}
-<p><a href="{{ url_for('classes.carnet', classe_id=classe['id'], periode=devoir['periode']) }}">&larr; {{ classe['nom'] }}</a></p>
-<h1>✏️ {{ devoir['titre'] }}{% if devoir['date_devoir'] %} — {{ devoir['date_devoir'] }}{% endif %}</h1>
-<p>
-  {{ devoir['type'] }}{% if devoir['sous_type'] %} · {{ devoir['sous_type'] }}{% endif %} ·
-  Période {{ devoir['periode'] }} · Coefficient
-  <input type="number" id="coefficient-input" class="form-control form-control-sm d-inline-block" style="width: 5rem;"
-         data-devoir-id="{{ devoir['id'] }}"
-         value="{{ devoir['coefficient']|int if devoir['coefficient'] == devoir['coefficient']|int else devoir['coefficient'] }}"
-         step="0.5" min="0.5">
-</p>
-{% if devoir['sujet_nom_fichier'] %}
-<p><a href="{{ url_for('devoirs.telecharger_sujet', devoir_id=devoir['id']) }}" class="btn btn-outline-secondary btn-sm">📎 Télécharger le sujet ({{ devoir['sujet_nom_fichier'] }})</a></p>
-{% endif %}
+<a href="{{ url_for('classes.carnet', classe_id=classe['id'], periode=devoir['periode']) }}" class="d-inline-flex align-items-center gap-1 text-body-secondary small mb-3">
+  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 19l-7-7 7-7"/></svg>
+  {{ classe['nom'] }}
+</a>
+
+<section class="border-bottom pb-4 mb-4">
+  <div class="d-flex align-items-center gap-2 mb-2">
+    <span class="tag tag-accent">{{ devoir['type'] }}</span>
+    {% if devoir['sous_type'] %}<span class="tag tag-outline">{{ devoir['sous_type'] }}</span>{% endif %}
+  </div>
+  <h1 class="mb-1">{{ devoir['titre'] }}</h1>
+  {% if devoir['date_devoir'] %}<p class="text-body-secondary small mb-4">{{ devoir['date_devoir'] }}</p>{% endif %}
+
+  <div class="d-flex align-items-center gap-4 flex-wrap">
+    <div class="d-flex align-items-center gap-2">
+      <span class="form-label mb-0">Période</span>
+      <span class="tag tag-neutral">{{ devoir['periode'] }}</span>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+      <span class="form-label mb-0">Coefficient</span>
+      <input type="number" id="coefficient-input" class="form-control form-control-sm text-center" style="width: 4.5rem;"
+             data-devoir-id="{{ devoir['id'] }}"
+             value="{{ devoir['coefficient']|int if devoir['coefficient'] == devoir['coefficient']|int else devoir['coefficient'] }}"
+             step="0.5" min="0.5">
+    </div>
+    {% if devoir['sujet_nom_fichier'] %}
+    <a href="{{ url_for('devoirs.telecharger_sujet', devoir_id=devoir['id']) }}" class="btn btn-secondary btn-sm">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14"/></svg>
+      Télécharger le sujet
+    </a>
+    {% endif %}
+  </div>
+</section>
 
 {% if not lignes %}
 <p class="text-body-secondary border rounded p-3">Aucun élève dans cette classe.</p>
 {% else %}
-<ul class="eleve-grid">
+<div class="d-grid gap-2" style="grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr));">
   {% for ligne in lignes %}
-  <li>
-    <span class="eleve-nom">{{ ligne['nom'] }} {{ ligne['prenom'] }}</span>
-    <button type="button" class="btn btn-outline-primary btn-sm note-link"
-            data-eleve-id="{{ ligne['eleve_id'] }}"
-            data-eleve-nom="{{ ligne['nom'] }} {{ ligne['prenom'] }}"
-            data-valeur="{{ ligne['valeur'] if ligne['valeur'] is not none else '' }}"
-            data-appreciation="{{ ligne['appreciation'] or '' }}">
+  <button type="button" class="eleve-carte note-link"
+          data-eleve-id="{{ ligne['eleve_id'] }}"
+          data-eleve-nom="{{ ligne['nom'] }} {{ ligne['prenom'] }}"
+          data-valeur="{{ ligne['valeur'] if ligne['valeur'] is not none else '' }}"
+          data-appreciation="{{ ligne['appreciation'] or '' }}">
+    <span style="min-width: 0;">
+      <span class="eleve-carte-nom">{{ ligne['nom'] }} {{ ligne['prenom'] }}</span>
+      {% if ligne['appreciation'] %}<span class="eleve-carte-appreciation">{{ ligne['appreciation'] }}</span>{% endif %}
+    </span>
+    <span class="eleve-carte-valeur {{ 'tag ' ~ ligne['tag'] if ligne['tag'] else '' }}">
       {{ ligne['valeur'] if ligne['valeur'] is not none else '—' }}
-    </button>
-  </li>
+    </span>
+  </button>
   {% endfor %}
-</ul>
-<p class="fs-5 border-top pt-2 mt-2">📊 Moyenne : <strong>{{ moyenne if moyenne is not none else '—' }}</strong></p>
+</div>
+
+<div class="d-flex align-items-center justify-content-between border-top pt-3 mt-4">
+  <p class="fs-5 mb-0">Moyenne : <strong style="color: var(--sn-accent-300);">{{ moyenne if moyenne is not none else '—' }}</strong></p>
+  <a href="{{ url_for('devoirs.generer_rapports', devoir_id=devoir['id']) }}" class="btn btn-primary">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 3h9l3 3v15H6z"/><path d="M9 3v5h6V3M9 13h6M9 17h4"/></svg>
+    Générer les rapports
+  </a>
+</div>
 {% endif %}
 
 {% if lignes %}
-<a href="{{ url_for('devoirs.generer_rapports', devoir_id=devoir['id']) }}" class="btn btn-primary">📄 Générer les rapports</a>
-
-<div class="modal fade" id="modal-edit-note" tabindex="-1" aria-hidden="true" data-devoir-id="{{ devoir['id'] }}">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <div class="modal-body">
-        <div id="voice-recording-view" hidden>
-          <h2 class="h5">🎤 Nouvel enregistrement</h2>
-          <div class="vu-meter">
-            <div class="vu-meter-track"></div>
-            <div class="vu-meter-mask" id="vu-mask"></div>
-          </div>
-          <p id="voice-status" class="voice-status"></p>
-          <div class="d-flex justify-content-end gap-2 mt-3">
-            <button type="button" class="btn btn-outline-secondary" id="voice-cancel-btn">Annuler</button>
-            <button type="button" class="btn btn-danger" id="voice-stop-btn">⏹ Arrêter</button>
-          </div>
-        </div>
-
-        <form id="voice-edit-view" method="post"
-              action="{{ url_for('devoirs.enregistrer_note', devoir_id=devoir['id']) }}">
-          <h2 class="h5" id="edit-eleve-nom">Modifier</h2>
-          <p id="voice-transcript-hint" class="text-body-secondary small"></p>
-          <input type="hidden" name="eleve_id" id="edit-eleve-id">
-          <div class="mb-3">
-            <label class="form-label">Note</label>
-            <input type="text" inputmode="decimal" class="form-control" name="valeur" id="voice-valeur-input">
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Commentaire</label>
-            <textarea class="form-control" name="appreciation" id="voice-appreciation-input" rows="14"></textarea>
-          </div>
-          <div class="d-flex justify-content-end gap-2">
-            <button type="button" class="btn btn-outline-secondary" id="voice-close-btn">Fermer</button>
-            <button type="button" class="btn btn-outline-primary" id="voice-record-btn">🎤 Réenregistrer</button>
-            <button type="submit" class="btn btn-primary">💾 Enregistrer</button>
-          </div>
-        </form>
+<div class="offcanvas offcanvas-end" tabindex="-1" id="modal-edit-note" aria-hidden="true" data-devoir-id="{{ devoir['id'] }}" style="--bs-offcanvas-width: 440px;">
+  <div class="offcanvas-header">
+    <h2 class="offcanvas-title h5" id="edit-eleve-nom">Modifier</h2>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Fermer"></button>
+  </div>
+  <div class="offcanvas-body d-flex flex-column">
+    <div id="voice-recording-view" hidden>
+      <h2 class="h5">🎤 Nouvel enregistrement</h2>
+      <p class="text-body-secondary small">Parlez : nom, note, appréciation.</p>
+      <div class="vu-meter">
+        <div class="vu-meter-track"></div>
+        <div class="vu-meter-mask" id="vu-mask"></div>
+      </div>
+      <p id="voice-status" class="voice-status"></p>
+      <div class="d-flex justify-content-end gap-2 mt-3">
+        <button type="button" class="btn btn-secondary" id="voice-cancel-btn">Annuler</button>
+        <button type="button" class="btn btn-danger" id="voice-stop-btn">⏹ Arrêter</button>
       </div>
     </div>
+
+    <form id="voice-edit-view" method="post" class="d-flex flex-column flex-grow-1"
+          action="{{ url_for('devoirs.enregistrer_note', devoir_id=devoir['id']) }}">
+      <p id="voice-transcript-hint" class="small mb-3" style="color: var(--sn-accent-300);"></p>
+      <input type="hidden" name="eleve_id" id="edit-eleve-id">
+      <div class="mb-3">
+        <label class="form-label">Note</label>
+        <input type="text" inputmode="decimal" class="form-control" name="valeur" id="voice-valeur-input">
+      </div>
+      <div class="mb-3 d-flex flex-column flex-grow-1">
+        <label class="form-label">Appréciation</label>
+        <textarea class="form-control flex-grow-1" name="appreciation" id="voice-appreciation-input" style="min-height: 14rem;"></textarea>
+      </div>
+      <div class="d-flex justify-content-between align-items-center gap-2 mt-auto pt-3 border-top">
+        <button type="button" class="btn btn-ghost" id="voice-close-btn">Fermer</button>
+        <div class="d-flex gap-2">
+          <button type="button" class="btn btn-secondary" id="voice-record-btn">🎤 Dicter</button>
+          <button type="submit" class="btn btn-primary">💾 Enregistrer</button>
+        </div>
+      </div>
+    </form>
   </div>
 </div>
 {% endif %}
