@@ -150,3 +150,24 @@ venv/bin/python scripts/seed_demo.py
 Mot de passe créé : `demo1234`. Ce script est un outil de développement — à
 ne pas utiliser sur une base contenant de vraies données (il refuse
 d'ailleurs de s'exécuter si `data/speednote.db.enc` existe déjà).
+
+## Développement : tests de non-régression
+
+```bash
+venv/bin/pip install -r requirements-dev.txt   # une seule fois
+venv/bin/pytest                                 # lance toute la suite
+```
+
+Chaque test tourne sur une base chiffrée isolée dans un dossier temporaire
+(jamais sur `data/` du dépôt), donc sans risque de perte de données et sans
+avoir besoin d'arrêter l'application en cours d'exécution. Points notables :
+
+- Le modèle de langage du bilan (`app/bilan.py`) et le modèle vocal Vosk ne
+  sont **jamais réellement sollicités** dans les tests (ce serait trop lourd
+  et trop lent) — ils sont remplacés par des simulations (`unittest.mock`).
+- La vérification de mise à jour (`app/update_checker.py`) est testée sur un
+  dépôt git jetable créé dans un dossier temporaire, jamais sur le vrai
+  dépôt SpeedNote.
+- Après toute modification du code, relancer `venv/bin/pytest` avant de
+  committer. Toute nouvelle fonctionnalité ou tout bug corrigé doit
+  s'accompagner d'un ou plusieurs tests dans `tests/`.
