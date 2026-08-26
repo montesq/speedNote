@@ -2,7 +2,14 @@
 Ne touche jamais Vosk/ffmpeg : uniquement le parsing texte, qui est la
 partie testable sans microphone ni modèle."""
 
-from app.voice import _capitaliser_phrases, _corriger_orthographe, _ponctuer, _retirer_insensible_accents, parser
+from app.voice import (
+    _capitaliser_phrases,
+    _corriger_orthographe,
+    _ponctuer,
+    _retirer_insensible_accents,
+    nettoyer_transcript,
+    parser,
+)
 
 
 class Eleve(dict):
@@ -78,3 +85,16 @@ def test_correction_orthographe_corrige_fautes_evidentes():
 def test_correction_orthographe_ne_touche_pas_les_mots_courts_ou_corrects():
     corrige = _corriger_orthographe("le chat est noir")
     assert corrige == "le chat est noir"
+
+
+def test_nettoyer_transcript_applique_ponctuation_orthographe_et_majuscules():
+    texte = nettoyer_transcript("bonjour virgule j ai fait trois erreurs point c est du bon travial point")
+    assert texte == "Bonjour, j ai fait 3 erreurs. C est du bon travail."
+
+
+def test_nettoyer_transcript_ne_cherche_ni_eleve_ni_note():
+    """Contrairement à parser(), nettoyer_transcript() n'a pas de contexte
+    devoir : un nombre dicté doit rester dans le texte, pas être extrait."""
+    texte = nettoyer_transcript("le total est de quinze euros")
+    assert "15" in texte
+    assert texte == "Le total est de 15 euros"

@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Outil de dictée — SpeedNote{% endblock %}
+{% block content %}
+<div class="form-label mb-1">Outil</div>
+<h1 class="mb-3">Dictée vocale</h1>
+<p class="text-body-secondary mb-4" style="max-width: 40rem;">
+  Enregistrez un commentaire à l'oral, il sera retranscrit en texte ici —
+  même traitement que pour l'appréciation d'un devoir (ponctuation dictée,
+  orthographe corrigée, majuscules de phrase). 100% local, l'audio n'est
+  jamais envoyé sur Internet ni écrit sur le disque.
+</p>
+
+<div id="outil-recording-view" hidden style="max-width: 32rem;">
+  <div class="vu-meter">
+    <div class="vu-meter-track"></div>
+    <div class="vu-meter-mask" id="outil-vu-mask"></div>
+  </div>
+  <p id="outil-status" class="voice-status"></p>
+  <div class="d-flex justify-content-end gap-2 mt-3">
+    <button type="button" class="btn btn-secondary" id="outil-cancel-btn">Annuler</button>
+    <button type="button" class="btn btn-danger" id="outil-stop-btn">⏹ Arrêter</button>
+  </div>
+</div>
+
+<div id="outil-repos-view" style="max-width: 32rem;">
+  <button type="button" class="btn btn-primary mb-3" id="outil-record-btn">
+    <svg class="icon" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M128,176a48.05,48.05,0,0,0,48-48V64a48,48,0,0,0-96,0v64A48.05,48.05,0,0,0,128,176ZM96,64a32,32,0,0,1,64,0v64a32,32,0,0,1-64,0Zm40,143.6V240a8,8,0,0,1-16,0V207.6A80.11,80.11,0,0,1,48,128a8,8,0,0,1,16,0,64,64,0,0,0,128,0,8,8,0,0,1,16,0A80.11,80.11,0,0,1,136,207.6Z"/></svg>
+    Enregistrer
+  </button>
+  <p id="outil-transcript-hint" class="text-body-secondary small"></p>
+  <textarea class="form-control" id="outil-texte" rows="14" placeholder="Le texte transcrit apparaîtra ici — modifiable."></textarea>
+</div>
+
+<script src="{{ url_for('static', filename='outil.js') }}"></script>
+{% endblock %}

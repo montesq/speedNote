@@ -1,5 +1,6 @@
-"""Transcription vocale locale (Vosk) pour pré-remplir note et appréciation
-depuis un enregistrement audio, sur la page de saisie d'un devoir.
+"""Transcription vocale locale (Vosk). Deux usages : pré-remplir note et
+appréciation depuis un enregistrement audio sur la page de saisie d'un
+devoir (parser()), et l'outil de dictée générale (nettoyer_transcript()).
 
 Tout se fait en mémoire : l'audio n'est jamais écrit sur le disque. La
 reconnaissance est 100% hors-ligne (aucun appel réseau), cohérent avec le
@@ -202,6 +203,27 @@ def _capitaliser_phrases(texte: str) -> str:
     return _DEBUT_PHRASE_RE.sub(lambda m: m.group(1) + m.group(2).upper(), texte)
 
 
+def _nettoyer_texte(texte: str) -> str:
+    """Nettoyage commun à parser() et nettoyer_transcript() : espaces,
+    orthographe, ponctuation dictée, majuscules de phrase."""
+    texte = re.sub(r"\s+", " ", texte).strip(" ,.-")
+    texte = _corriger_orthographe(texte)
+    # La ponctuation dictée est convertie après ce nettoyage, pour que les
+    # signes ajoutés ne soient jamais retirés par le strip() ci-dessus.
+    texte = _ponctuer(texte).strip()
+    texte = _capitaliser_phrases(texte)
+    return texte
+
+
+def nettoyer_transcript(transcript: str) -> str:
+    """Nettoie un transcript vocal brut pour un usage texte libre (l'outil
+    de dictée générale) : nombres en chiffres, orthographe corrigée,
+    ponctuation dictée convertie, phrases capitalisées. Contrairement à
+    parser(), ne cherche ni élève ni note — pas de contexte devoir ici."""
+    texte = alpha2digit(transcript, "fr")
+    return _nettoyer_texte(texte)
+
+
 def parser(transcript: str, eleves):
     """Extrait élève, note et appréciation d'un transcript vocal.
 
@@ -229,12 +251,7 @@ def parser(transcript: str, eleves):
             if morceau:
                 appreciation = _retirer_insensible_accents(appreciation, morceau)
 
-    appreciation = re.sub(r"\s+", " ", appreciation).strip(" ,.-")
-    appreciation = _corriger_orthographe(appreciation)
-    # La ponctuation dictée est convertie après ce nettoyage, pour que les
-    # signes ajoutés ne soient jamais retirés par le strip() ci-dessus.
-    appreciation = _ponctuer(appreciation).strip()
-    appreciation = _capitaliser_phrases(appreciation)
+    appreciation = _nettoyer_texte(appreciation)
 
     return {
         "eleve": eleve,

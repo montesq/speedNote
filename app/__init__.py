@@ -17,6 +17,7 @@ def create_app() -> Flask:
     from .routes.devoirs import bp as devoirs_bp
     from .routes.eleves import bp as eleves_bp
     from .routes.mise_a_jour import bp as mise_a_jour_bp
+    from .routes.outil import bp as outil_bp
     from .routes.wizard import bp as wizard_bp
 
     app.register_blueprint(auth_bp)
@@ -26,6 +27,7 @@ def create_app() -> Flask:
     app.register_blueprint(eleves_bp)
     app.register_blueprint(devoirs_bp)
     app.register_blueprint(mise_a_jour_bp)
+    app.register_blueprint(outil_bp)
     app.register_blueprint(wizard_bp)
 
     ROUTES_LIBRES = ("auth.demarrage", "auth.deverrouiller", "static", "mise_a_jour.appliquer")
