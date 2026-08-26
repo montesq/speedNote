@@ -2,11 +2,12 @@
 {% block title %}Déverrouiller — SpeedNote{% endblock %}
 {% block content %}
 <h1>🔒 SpeedNote est verrouillé</h1>
-{% if error %}<p class="error">{{ error }}</p>{% endif %}
+{% if error %}<p class="text-danger fw-semibold">{{ error }}</p>{% endif %}
 <form method="post">
-  <label>Mot de passe
-    <input type="password" name="passphrase" required autofocus>
-  </label>
-  <button type="submit">🔓 Déverrouiller</button>
+  <div class="mb-3">
+    <label class="form-label">Mot de passe</label>
+    <input type="password" class="form-control" name="passphrase" required autofocus>
+  </div>
+  <button type="submit" class="btn btn-primary">🔓 Déverrouiller</button>
 </form>
 {% endblock %}

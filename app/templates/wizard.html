@@ -6,10 +6,11 @@
 {% if annee is none %}
 <p>Commençons par créer votre première année scolaire.</p>
 <form method="post" action="{{ url_for('wizard.creer_annee') }}">
-  <label>Année scolaire (ex. 2025-2026)
-    <input type="text" name="libelle" value="{{ annee_suggeree }}" required autofocus>
-  </label>
-  <button type="submit">🚀 Créer l'année scolaire</button>
+  <div class="mb-3">
+    <label class="form-label">Année scolaire (ex. 2025-2026)</label>
+    <input type="text" class="form-control" name="libelle" value="{{ annee_suggeree }}" required autofocus>
+  </div>
+  <button type="submit" class="btn btn-primary">🚀 Créer l'année scolaire</button>
 </form>
 
 {% else %}
@@ -18,34 +19,38 @@
 ajouter ou en modifier plus tard depuis le menu Admin.</p>
 
 {% if classes %}
-<ul class="wizard-classes">
+<div class="row row-cols-1 row-cols-md-2 g-3 mb-3">
   {% for c in classes %}
-  <li class="wizard-classe">
-    <div class="wizard-classe-header">
-      <strong>📘 {{ c['nom'] }}</strong>
-      <span class="muted">{{ c['nb_eleves'] }} élève{{ 's' if c['nb_eleves'] != 1 else '' }}</span>
+  <div class="col">
+    <div class="card h-100">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-baseline mb-2">
+          <strong>📘 {{ c['nom'] }}</strong>
+          <span class="text-body-secondary small">{{ c['nb_eleves'] }} élève{{ 's' if c['nb_eleves'] != 1 else '' }}</span>
+        </div>
+        <form method="post" action="{{ url_for('wizard.ajouter_eleves', classe_id=c['id']) }}">
+          <textarea class="form-control mb-2" name="bulk" rows="3" placeholder="Dupont Marie&#10;Martin Lucas"></textarea>
+          <button type="submit" class="btn btn-outline-primary btn-sm">Ajouter des élèves</button>
+        </form>
+      </div>
     </div>
-    <form method="post" action="{{ url_for('wizard.ajouter_eleves', classe_id=c['id']) }}">
-      <textarea name="bulk" rows="3" placeholder="Dupont Marie&#10;Martin Lucas"></textarea>
-      <button type="submit">Ajouter des élèves</button>
-    </form>
-  </li>
+  </div>
   {% endfor %}
-</ul>
+</div>
 {% endif %}
 
-<form method="post" action="{{ url_for('wizard.creer_classe', annee_id=annee['id']) }}" class="inline-form">
-  <input type="text" name="nom" placeholder="Nouvelle classe, ex. 3e B" required>
-  <select name="systeme_periode">
+<form method="post" action="{{ url_for('wizard.creer_classe', annee_id=annee['id']) }}" class="d-flex flex-wrap gap-2 mb-4">
+  <input type="text" class="form-control" style="max-width: 16rem;" name="nom" placeholder="Nouvelle classe, ex. 3e B" required>
+  <select class="form-select" style="max-width: 12rem;" name="systeme_periode">
     {% for valeur, libelle in systemes.items() %}
     <option value="{{ valeur }}">{{ libelle }}</option>
     {% endfor %}
   </select>
-  <button type="submit">➕ Ajouter la classe</button>
+  <button type="submit" class="btn btn-primary">➕ Ajouter la classe</button>
 </form>
 
 <form method="post" action="{{ url_for('wizard.terminer') }}">
-  <button type="submit">🎉 Terminer la configuration</button>
+  <button type="submit" class="btn btn-success">🎉 Terminer la configuration</button>
 </form>
 {% endif %}
 {% endblock %}

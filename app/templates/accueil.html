@@ -2,6 +2,6 @@
 {% block title %}SpeedNote{% endblock %}
 {% block content %}
 <h1>🎓 {{ annee['libelle'] }}</h1>
-<p class="empty">🌱 Aucune classe pour cette année. Ajoutez-en une depuis
+<p class="text-body-secondary border rounded p-3">🌱 Aucune classe pour cette année. Ajoutez-en une depuis
   <a href="{{ url_for('classes.liste', annee_id=annee['id']) }}">l'Admin</a>.</p>
 {% endblock %}

@@ -1,36 +1,36 @@
 {% extends "base.html" %}
 {% block title %}{{ classe['nom'] }} — SpeedNote{% endblock %}
-{% block main_class %}main-wide{% endblock %}
+{% block main_class %}container-fluid{% endblock %}
 {% block content %}
-<div class="carnet-header">
-  <label class="classe-select-label">
-    Classe
-    <select class="classe-select" onchange="if (this.value) location.href = this.value;">
+<div class="d-flex flex-wrap align-items-end gap-3 mb-3">
+  <div>
+    <label for="classe-select" class="form-label small text-body-secondary mb-1">Classe</label>
+    <select class="form-select" id="classe-select" onchange="if (this.value) location.href = this.value;">
       {% for c in classes_annee %}
       <option value="{{ url_for('classes.carnet', classe_id=c['id']) }}" {% if c['id'] == classe['id'] %}selected{% endif %}>
         📘 {{ c['nom'] }}
       </option>
       {% endfor %}
     </select>
-  </label>
-  <label class="classe-select-label">
-    Période
-    <select class="classe-select" id="periode-select" onchange="naviguerFiltres()">
+  </div>
+  <div>
+    <label for="periode-select" class="form-label small text-body-secondary mb-1">Période</label>
+    <select class="form-select" id="periode-select" onchange="naviguerFiltres()">
       {% for p in periodes_disponibles %}
       <option value="{{ p }}" {% if p == periode and not toutes_periodes %}selected{% endif %}>{{ p }}</option>
       {% endfor %}
       <option value="toutes" {% if toutes_periodes %}selected{% endif %}>📆 Toute l'année</option>
     </select>
-  </label>
-  <label class="classe-select-label">
-    Type
-    <select class="classe-select" id="type-select" onchange="naviguerFiltres()">
+  </div>
+  <div>
+    <label for="type-select" class="form-label small text-body-secondary mb-1">Type</label>
+    <select class="form-select" id="type-select" onchange="naviguerFiltres()">
       <option value="" {% if not type_filtre %}selected{% endif %}>Tous les types</option>
       {% for t in types_devoir %}
       <option value="{{ t }}" {% if t == type_filtre %}selected{% endif %}>{{ t }}</option>
       {% endfor %}
     </select>
-  </label>
+  </div>
   <script>
     function naviguerFiltres() {
       const periode = document.getElementById("periode-select").value;
@@ -43,26 +43,26 @@
     }
   </script>
   {% if eleves %}
-  <button type="button" class="btn-cta" onclick="document.getElementById('modal-devoir').showModal()">➕ Nouveau devoir</button>
+  <button type="button" class="btn btn-primary ms-auto" data-bs-toggle="modal" data-bs-target="#modal-devoir">➕ Nouveau devoir</button>
   {% endif %}
 </div>
 
 {% if not eleves %}
-<p class="empty">🌱 Aucun élève dans cette classe. Ajoutez-en depuis
+<p class="text-body-secondary border rounded p-3">🌱 Aucun élève dans cette classe. Ajoutez-en depuis
   <a href="{{ url_for('classes.gerer', classe_id=classe['id']) }}">Gérer la classe</a>.</p>
 {% else %}
-<div class="table-scroll">
-<table class="grid carnet">
-  <thead>
+<div class="table-responsive">
+<table class="table table-hover align-middle bg-white carnet">
+  <thead class="table-light">
     <tr>
       <th>Élève</th>
       {% for d in devoirs %}
       <th>
         <a href="{{ url_for('devoirs.saisie', devoir_id=d['id']) }}">{{ d['titre'] }}</a>
-        <br><span class="muted">coef. {{ d['coefficient']|int if d['coefficient'] == d['coefficient']|int else d['coefficient'] }}</span>
+        <br><span class="text-body-secondary devoir-coef">coef. {{ d['coefficient']|int if d['coefficient'] == d['coefficient']|int else d['coefficient'] }}</span>
       </th>
       {% endfor %}
-      <th>Moyenne<br><span class="muted">{{ "année" if toutes_periodes else "période" }} /20</span></th>
+      <th>Moyenne<br><span class="text-body-secondary devoir-coef">{{ "année" if toutes_periodes else "période" }} /20</span></th>
     </tr>
   </thead>
   <tbody>
@@ -70,9 +70,9 @@
     <tr>
       <td>{{ ligne.eleve['nom'] }} {{ ligne.eleve['prenom'] }}</td>
       {% for note in ligne.notes %}
-      <td class="{{ note.css }}">
+      <td>
         {% if note.valeur is not none or note.appreciation %}
-        <button type="button" class="note-comment-link"
+        <button type="button" class="btn btn-link p-0 note-comment-link {{ 'note-pill note-good' if note.css == 'note-bonne' else 'note-pill note-mid' if note.css == 'note-moyenne' else 'note-pill note-low' if note.css == 'note-faible' else '' }}"
                 data-titre="{{ note.devoir_titre }}"
                 data-appreciation="{{ note.appreciation or '' }}">
           {{ note.valeur if note.valeur is not none else '—' }}
@@ -82,9 +82,9 @@
         {% endif %}
       </td>
       {% endfor %}
-      <td class="carnet-moyenne">
+      <td>
         {% if devoirs %}
-        <button type="button" class="note-comment-link moyenne-link"
+        <button type="button" class="btn btn-link p-0 fw-semibold note-comment-link moyenne-link"
                 data-eleve-nom="{{ ligne.eleve['nom'] }} {{ ligne.eleve['prenom'] }}"
                 data-comments='{{ ligne.notes|tojson }}'>
           {{ ligne.moyenne if ligne.moyenne is not none else '—' }}
@@ -97,82 +97,110 @@
     {% endfor %}
   </tbody>
   {% if devoirs %}
-  <tfoot>
-    <tr>
-      <td><strong>Moyenne de la classe</strong></td>
+  <tfoot class="table-light">
+    <tr class="fw-semibold">
+      <td>Moyenne de la classe</td>
       {% for d in devoirs %}
-      <td><strong>{{ moyennes_devoirs[loop.index0] if moyennes_devoirs[loop.index0] is not none else '—' }}</strong></td>
+      <td>{{ moyennes_devoirs[loop.index0] if moyennes_devoirs[loop.index0] is not none else '—' }}</td>
       {% endfor %}
-      <td><strong>{{ moyenne_classe_periode if moyenne_classe_periode is not none else '—' }}</strong></td>
+      <td>{{ moyenne_classe_periode if moyenne_classe_periode is not none else '—' }}</td>
     </tr>
   </tfoot>
   {% endif %}
 </table>
 </div>
 {% if not devoirs %}
-<p class="empty">📝 Aucun devoir{% if type_filtre %} de type « {{ type_filtre }} »{% endif %} {{ "pour cette classe" if toutes_periodes else "pour la période " ~ periode }} pour le moment.</p>
+<p class="text-body-secondary border rounded p-3">📝 Aucun devoir{% if type_filtre %} de type « {{ type_filtre }} »{% endif %} {{ "pour cette classe" if toutes_periodes else "pour la période " ~ periode }} pour le moment.</p>
 {% endif %}
 
-<dialog id="modal-devoir" class="modal">
-  <form method="post" action="{{ url_for('devoirs.creer', classe_id=classe['id']) }}" enctype="multipart/form-data">
-    <h2>✏️ Nouveau devoir</h2>
-    <label>Titre
-      <input type="text" name="titre" placeholder="Titre du devoir" required>
-    </label>
-    <label>Date
-      <input type="date" name="date_devoir">
-    </label>
-    <label>Coefficient
-      <input type="number" name="coefficient" value="1" step="0.5" min="0.5">
-    </label>
-    <label>Période
-      <select name="periode">
-        {% for p in periodes_disponibles %}
-        <option value="{{ p }}" {% if p == periode_defaut %}selected{% endif %}>{{ p }}</option>
-        {% endfor %}
-      </select>
-    </label>
-    <label>Type
-      <select name="type" id="devoir-type-select" data-types-avec-sous-type='{{ types_avec_sous_type | tojson }}'>
-        {% for t in types_devoir %}
-        <option value="{{ t }}">{{ t }}</option>
-        {% endfor %}
-      </select>
-    </label>
-    <label id="devoir-sous-type-label" hidden>Sous-type
-      <select name="sous_type" id="devoir-sous-type-select">
-        <option value="">—</option>
-        {% for st in sous_types_devoir %}
-        <option value="{{ st }}">{{ st }}</option>
-        {% endfor %}
-      </select>
-    </label>
-    <label>Sujet du devoir (optionnel, 20 Mo max)
-      <input type="file" name="sujet">
-    </label>
-    <div class="modal-actions">
-      <button type="button" class="btn-ghost" onclick="document.getElementById('modal-devoir').close()">Annuler</button>
-      <button type="submit">➕ Créer le devoir</button>
+<div class="modal fade" id="modal-devoir" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form method="post" action="{{ url_for('devoirs.creer', classe_id=classe['id']) }}" enctype="multipart/form-data">
+        <div class="modal-header">
+          <h2 class="modal-title h5">✏️ Nouveau devoir</h2>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Titre</label>
+            <input type="text" class="form-control" name="titre" placeholder="Titre du devoir" required>
+          </div>
+          <div class="row g-2 mb-3">
+            <div class="col">
+              <label class="form-label">Date</label>
+              <input type="date" class="form-control" name="date_devoir">
+            </div>
+            <div class="col">
+              <label class="form-label">Coefficient</label>
+              <input type="number" class="form-control" name="coefficient" value="1" step="0.5" min="0.5">
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Période</label>
+            <select class="form-select" name="periode">
+              {% for p in periodes_disponibles %}
+              <option value="{{ p }}" {% if p == periode_defaut %}selected{% endif %}>{{ p }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="row g-2 mb-3">
+            <div class="col">
+              <label class="form-label">Type</label>
+              <select class="form-select" name="type" id="devoir-type-select" data-types-avec-sous-type='{{ types_avec_sous_type | tojson }}'>
+                {% for t in types_devoir %}
+                <option value="{{ t }}">{{ t }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col" id="devoir-sous-type-label" hidden>
+              <label class="form-label">Sous-type</label>
+              <select class="form-select" name="sous_type" id="devoir-sous-type-select">
+                <option value="">—</option>
+                {% for st in sous_types_devoir %}
+                <option value="{{ st }}">{{ st }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+          <div class="mb-1">
+            <label class="form-label">Sujet du devoir (optionnel, 20 Mo max)</label>
+            <input type="file" class="form-control" name="sujet">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
+          <button type="submit" class="btn btn-primary">➕ Créer le devoir</button>
+        </div>
+      </form>
     </div>
-  </form>
-</dialog>
+  </div>
+</div>
 
-<dialog id="modal-commentaire" class="modal modal-large">
-  <h2 id="commentaire-titre"></h2>
-  <div id="commentaire-corps"></div>
-  <div id="bilan-zone" hidden>
-    <h3>📝 Bilan pour le bulletin</h3>
-    <p id="bilan-statut" class="muted"></p>
-    <textarea id="bilan-texte" rows="4" placeholder="Le texte généré apparaîtra ici — modifiable avant de le copier dans le bulletin."></textarea>
+<div class="modal fade" id="modal-commentaire" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title h5" id="commentaire-titre"></h2>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+      </div>
+      <div class="modal-body">
+        <div id="commentaire-corps"></div>
+        <div id="bilan-zone" hidden class="mt-3 border-top pt-3">
+          <h3 class="h6">📝 Bilan pour le bulletin</h3>
+          <p id="bilan-statut" class="text-body-secondary small"></p>
+          <textarea id="bilan-texte" class="form-control" rows="4" placeholder="Le texte généré apparaîtra ici — modifiable avant de le copier dans le bulletin."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-primary" id="bilan-generer-btn" hidden>🪄 Générer Bilan</button>
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Fermer</button>
+      </div>
+    </div>
   </div>
-  <div class="modal-actions">
-    <button type="button" class="btn-ghost" id="bilan-generer-btn" hidden>🪄 Générer Bilan</button>
-    <button type="button" class="btn-ghost" onclick="document.getElementById('modal-commentaire').close()">Fermer</button>
-  </div>
-</dialog>
+</div>
 {% endif %}
 
-<script src="{{ url_for('static', filename='modal.js') }}"></script>
 <script src="{{ url_for('static', filename='commentaires.js') }}"></script>
 <script src="{{ url_for('static', filename='devoir_type.js') }}"></script>
 {% endblock %}

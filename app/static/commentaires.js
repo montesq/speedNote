@@ -1,6 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const dialog = document.getElementById("modal-commentaire");
-  if (!dialog) return;
+  const dialogEl = document.getElementById("modal-commentaire");
+  if (!dialogEl) return;
+  const dialog = bootstrap.Modal.getOrCreateInstance(dialogEl);
 
   const titreEl = document.getElementById("commentaire-titre");
   const corpsEl = document.getElementById("commentaire-corps");
@@ -31,11 +32,7 @@ document.addEventListener("DOMContentLoaded", () => {
     bilanZone.hidden = true;
     bilanTexte.value = "";
     bilanStatut.textContent = "";
-    dialog.showModal();
-    // showModal() donne le focus au bouton "Fermer" (seul élément
-    // focusable), ce qui fait défiler la popup jusqu'à lui plutôt que de
-    // l'afficher depuis le début.
-    dialog.scrollTop = 0;
+    dialog.show();
   }
 
   document.querySelectorAll(".note-comment-link:not(.moyenne-link)").forEach((btn) => {
@@ -57,7 +54,7 @@ document.addEventListener("DOMContentLoaded", () => {
         ? notes
             .map((n) => {
               const appreciation = n.appreciation || "Aucun commentaire.";
-              return `<div class="commentaire-item"><strong>${echapper(n.devoir_titre)}</strong><p>${formater(appreciation)}</p></div>`;
+              return `<div class="commentaire-item mb-3"><strong>${echapper(n.devoir_titre)}</strong><p class="mb-0">${formater(appreciation)}</p></div>`;
             })
             .join("")
         : "<p>Aucun devoir sur cette période.</p>";

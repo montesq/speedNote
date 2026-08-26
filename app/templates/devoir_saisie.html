@@ -1,29 +1,29 @@
 {% extends "base.html" %}
 {% block title %}{{ devoir['titre'] }} — SpeedNote{% endblock %}
-{% block main_class %}main-wide{% endblock %}
+{% block main_class %}container-fluid{% endblock %}
 {% block content %}
 <p><a href="{{ url_for('classes.carnet', classe_id=classe['id'], periode=devoir['periode']) }}">&larr; {{ classe['nom'] }}</a></p>
 <h1>✏️ {{ devoir['titre'] }}{% if devoir['date_devoir'] %} — {{ devoir['date_devoir'] }}{% endif %}</h1>
 <p>
   {{ devoir['type'] }}{% if devoir['sous_type'] %} · {{ devoir['sous_type'] }}{% endif %} ·
   Période {{ devoir['periode'] }} · Coefficient
-  <input type="number" id="coefficient-input" class="coefficient-input"
+  <input type="number" id="coefficient-input" class="form-control form-control-sm d-inline-block" style="width: 5rem;"
          data-devoir-id="{{ devoir['id'] }}"
          value="{{ devoir['coefficient']|int if devoir['coefficient'] == devoir['coefficient']|int else devoir['coefficient'] }}"
          step="0.5" min="0.5">
 </p>
 {% if devoir['sujet_nom_fichier'] %}
-<p><a href="{{ url_for('devoirs.telecharger_sujet', devoir_id=devoir['id']) }}" class="btn btn-ghost">📎 Télécharger le sujet ({{ devoir['sujet_nom_fichier'] }})</a></p>
+<p><a href="{{ url_for('devoirs.telecharger_sujet', devoir_id=devoir['id']) }}" class="btn btn-outline-secondary btn-sm">📎 Télécharger le sujet ({{ devoir['sujet_nom_fichier'] }})</a></p>
 {% endif %}
 
 {% if not lignes %}
-<p class="empty">Aucun élève dans cette classe.</p>
+<p class="text-body-secondary border rounded p-3">Aucun élève dans cette classe.</p>
 {% else %}
 <ul class="eleve-grid">
   {% for ligne in lignes %}
   <li>
     <span class="eleve-nom">{{ ligne['nom'] }} {{ ligne['prenom'] }}</span>
-    <button type="button" class="note-link"
+    <button type="button" class="btn btn-outline-primary btn-sm note-link"
             data-eleve-id="{{ ligne['eleve_id'] }}"
             data-eleve-nom="{{ ligne['nom'] }} {{ ligne['prenom'] }}"
             data-valeur="{{ ligne['valeur'] if ligne['valeur'] is not none else '' }}"
@@ -33,44 +33,52 @@
   </li>
   {% endfor %}
 </ul>
-<p class="devoir-moyenne">📊 Moyenne : <strong>{{ moyenne if moyenne is not none else '—' }}</strong></p>
+<p class="fs-5 border-top pt-2 mt-2">📊 Moyenne : <strong>{{ moyenne if moyenne is not none else '—' }}</strong></p>
 {% endif %}
 
 {% if lignes %}
-<a href="{{ url_for('devoirs.generer_rapports', devoir_id=devoir['id']) }}" class="btn btn-cta">📄 Générer les rapports</a>
+<a href="{{ url_for('devoirs.generer_rapports', devoir_id=devoir['id']) }}" class="btn btn-primary">📄 Générer les rapports</a>
 
-<dialog id="modal-edit-note" class="modal modal-voice modal-large" data-devoir-id="{{ devoir['id'] }}">
-  <div id="voice-recording-view" hidden>
-    <h2>🎤 Nouvel enregistrement</h2>
-    <div class="vu-meter">
-      <div class="vu-meter-track"></div>
-      <div class="vu-meter-mask" id="vu-mask"></div>
-    </div>
-    <p id="voice-status" class="voice-status"></p>
-    <div class="modal-actions">
-      <button type="button" class="btn-ghost" id="voice-cancel-btn">Annuler</button>
-      <button type="button" class="danger" id="voice-stop-btn">⏹ Arrêter</button>
+<div class="modal fade" id="modal-edit-note" tabindex="-1" aria-hidden="true" data-devoir-id="{{ devoir['id'] }}">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-body">
+        <div id="voice-recording-view" hidden>
+          <h2 class="h5">🎤 Nouvel enregistrement</h2>
+          <div class="vu-meter">
+            <div class="vu-meter-track"></div>
+            <div class="vu-meter-mask" id="vu-mask"></div>
+          </div>
+          <p id="voice-status" class="voice-status"></p>
+          <div class="d-flex justify-content-end gap-2 mt-3">
+            <button type="button" class="btn btn-outline-secondary" id="voice-cancel-btn">Annuler</button>
+            <button type="button" class="btn btn-danger" id="voice-stop-btn">⏹ Arrêter</button>
+          </div>
+        </div>
+
+        <form id="voice-edit-view" method="post"
+              action="{{ url_for('devoirs.enregistrer_note', devoir_id=devoir['id']) }}">
+          <h2 class="h5" id="edit-eleve-nom">Modifier</h2>
+          <p id="voice-transcript-hint" class="text-body-secondary small"></p>
+          <input type="hidden" name="eleve_id" id="edit-eleve-id">
+          <div class="mb-3">
+            <label class="form-label">Note</label>
+            <input type="text" inputmode="decimal" class="form-control" name="valeur" id="voice-valeur-input">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Commentaire</label>
+            <textarea class="form-control" name="appreciation" id="voice-appreciation-input" rows="14"></textarea>
+          </div>
+          <div class="d-flex justify-content-end gap-2">
+            <button type="button" class="btn btn-outline-secondary" id="voice-close-btn">Fermer</button>
+            <button type="button" class="btn btn-outline-primary" id="voice-record-btn">🎤 Réenregistrer</button>
+            <button type="submit" class="btn btn-primary">💾 Enregistrer</button>
+          </div>
+        </form>
+      </div>
     </div>
   </div>
-
-  <form id="voice-edit-view" method="post"
-        action="{{ url_for('devoirs.enregistrer_note', devoir_id=devoir['id']) }}">
-    <h2 id="edit-eleve-nom">Modifier</h2>
-    <p id="voice-transcript-hint" class="muted"></p>
-    <input type="hidden" name="eleve_id" id="edit-eleve-id">
-    <label>Note
-      <input type="text" inputmode="decimal" name="valeur" id="voice-valeur-input">
-    </label>
-    <label>Commentaire
-      <textarea name="appreciation" id="voice-appreciation-input" rows="14"></textarea>
-    </label>
-    <div class="modal-actions">
-      <button type="button" class="btn-ghost" id="voice-close-btn">Fermer</button>
-      <button type="button" class="btn-ghost" id="voice-record-btn">🎤 Réenregistrer</button>
-      <button type="submit">💾 Enregistrer</button>
-    </div>
-  </form>
-</dialog>
+</div>
 {% endif %}
 
 <script src="{{ url_for('static', filename='voice.js') }}"></script>

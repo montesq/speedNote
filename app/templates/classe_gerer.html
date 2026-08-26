@@ -7,50 +7,51 @@
 </p>
 <h1>⚙️ Gérer {{ classe['nom'] }}</h1>
 
-<section>
-  <h2>🧑‍🎓 Élèves ({{ eleves|length }})</h2>
-  <ul class="list">
+<section class="mb-4">
+  <h2 class="h4">🧑‍🎓 Élèves ({{ eleves|length }})</h2>
+  <ul class="list-group mb-3">
     {% for e in eleves %}
-    <li>
-      <form method="post" action="{{ url_for('eleves.modifier', eleve_id=e['id']) }}" class="inline-form">
-        <input type="text" name="nom" value="{{ e['nom'] }}" required>
-        <input type="text" name="prenom" value="{{ e['prenom'] }}">
-        <button type="submit">Enregistrer</button>
+    <li class="list-group-item d-flex flex-wrap align-items-center gap-2">
+      <form method="post" action="{{ url_for('eleves.modifier', eleve_id=e['id']) }}" class="d-flex flex-wrap gap-2 flex-grow-1">
+        <input type="text" class="form-control" style="max-width: 12rem;" name="nom" value="{{ e['nom'] }}" required>
+        <input type="text" class="form-control" style="max-width: 12rem;" name="prenom" value="{{ e['prenom'] }}">
+        <button type="submit" class="btn btn-outline-primary">Enregistrer</button>
       </form>
       <form method="post" action="{{ url_for('eleves.supprimer', eleve_id=e['id']) }}"
-            class="inline-form" onsubmit="return confirm('Supprimer cet élève ?');">
-        <button type="submit" class="danger">Supprimer</button>
+            onsubmit="return confirm('Supprimer cet élève ?');">
+        <button type="submit" class="btn btn-outline-danger">Supprimer</button>
       </form>
     </li>
     {% else %}
-    <li class="empty">Aucun élève dans cette classe.</li>
+    <li class="list-group-item text-body-secondary">Aucun élève dans cette classe.</li>
     {% endfor %}
   </ul>
   <form method="post" action="{{ url_for('eleves.ajouter', classe_id=classe['id']) }}">
-    <label>Ajouter des élèves (un par ligne, "Nom Prénom")
-      <textarea name="bulk" rows="6" placeholder="Dupont Marie&#10;Martin Lucas"></textarea>
-    </label>
-    <button type="submit">➕ Ajouter les élèves</button>
+    <div class="mb-2">
+      <label class="form-label">Ajouter des élèves (un par ligne, "Nom Prénom")</label>
+      <textarea class="form-control" name="bulk" rows="6" placeholder="Dupont Marie&#10;Martin Lucas"></textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">➕ Ajouter les élèves</button>
   </form>
 </section>
 
 <section>
-  <h2>📝 Devoirs ({{ devoirs|length }})</h2>
-  <ul class="list">
+  <h2 class="h4">📝 Devoirs ({{ devoirs|length }})</h2>
+  <ul class="list-group">
     {% for d in devoirs %}
-    <li>
-      <a href="{{ url_for('devoirs.saisie', devoir_id=d['id']) }}">
+    <li class="list-group-item d-flex flex-wrap align-items-center gap-2">
+      <a href="{{ url_for('devoirs.saisie', devoir_id=d['id']) }}" class="flex-grow-1">
         [{{ d['periode'] }}] {{ d['titre'] }}{% if d['date_devoir'] %} — {{ d['date_devoir'] }}{% endif %}
         (coef. {{ d['coefficient']|int if d['coefficient'] == d['coefficient']|int else d['coefficient'] }})
         — {{ d['type'] }}{% if d['sous_type'] %} · {{ d['sous_type'] }}{% endif %}
       </a>
       <form method="post" action="{{ url_for('devoirs.supprimer', devoir_id=d['id']) }}"
-            class="inline-form" onsubmit="return confirm('Supprimer ce devoir et ses notes ?');">
-        <button type="submit" class="danger">Supprimer</button>
+            onsubmit="return confirm('Supprimer ce devoir et ses notes ?');">
+        <button type="submit" class="btn btn-outline-danger">Supprimer</button>
       </form>
     </li>
     {% else %}
-    <li class="empty">Aucun devoir pour cette classe. Un devoir se crée depuis le carnet de notes.</li>
+    <li class="list-group-item text-body-secondary">Aucun devoir pour cette classe. Un devoir se crée depuis le carnet de notes.</li>
     {% endfor %}
   </ul>
 </section>

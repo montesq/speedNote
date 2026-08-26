@@ -5,17 +5,19 @@
 <p>Première utilisation : choisissez un mot de passe maître. Il protège toutes les
 données saisies (notes, appréciations, noms d'élèves) : sans lui, personne ne peut
 les lire, <strong>y compris vous</strong>.</p>
-<p class="warning">🔐 Ce mot de passe n'est enregistré nulle part. S'il est oublié, les
+<p class="alert alert-warning">🔐 Ce mot de passe n'est enregistré nulle part. S'il est oublié, les
 données sont définitivement perdues. Notez-le dans un endroit sûr (gestionnaire de
 mots de passe).</p>
-{% if error %}<p class="error">{{ error }}</p>{% endif %}
+{% if error %}<p class="text-danger fw-semibold">{{ error }}</p>{% endif %}
 <form method="post">
-  <label>Mot de passe (8 caractères minimum)
-    <input type="password" name="passphrase" required minlength="8" autofocus>
-  </label>
-  <label>Confirmer le mot de passe
-    <input type="password" name="passphrase_confirm" required minlength="8">
-  </label>
-  <button type="submit">🚀 Créer et démarrer</button>
+  <div class="mb-3">
+    <label class="form-label">Mot de passe (8 caractères minimum)</label>
+    <input type="password" class="form-control" name="passphrase" required minlength="8" autofocus>
+  </div>
+  <div class="mb-3">
+    <label class="form-label">Confirmer le mot de passe</label>
+    <input type="password" class="form-control" name="passphrase_confirm" required minlength="8">
+  </div>
+  <button type="submit" class="btn btn-primary">🚀 Créer et démarrer</button>
 </form>
 {% endblock %}

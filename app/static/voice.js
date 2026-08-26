@@ -1,8 +1,9 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const dialog = document.getElementById("modal-edit-note");
-  if (!dialog) return;
+  const dialogEl = document.getElementById("modal-edit-note");
+  if (!dialogEl) return;
+  const dialog = bootstrap.Modal.getOrCreateInstance(dialogEl);
 
-  const devoirId = dialog.dataset.devoirId;
+  const devoirId = dialogEl.dataset.devoirId;
 
   const recordingView = document.getElementById("voice-recording-view");
   const editView = document.getElementById("voice-edit-view");
@@ -174,12 +175,12 @@ document.addEventListener("DOMContentLoaded", () => {
     appreciationInput.value = btn.dataset.appreciation || "";
     transcriptHint.textContent = "";
     showEditView();
-    dialog.showModal();
+    dialog.show();
   }
 
   function closeDialog() {
     abandonRecording();
-    dialog.close();
+    dialog.hide();
   }
 
   document.querySelectorAll(".note-link").forEach((btn) => {
@@ -193,5 +194,5 @@ document.addEventListener("DOMContentLoaded", () => {
     showEditView();
   });
   closeBtn.addEventListener("click", closeDialog);
-  dialog.addEventListener("close", abandonRecording);
+  dialogEl.addEventListener("hidden.bs.modal", abandonRecording);
 });

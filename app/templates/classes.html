@@ -3,28 +3,29 @@
 {% block content %}
 <p><a href="{{ url_for('annees.liste') }}">&larr; Années scolaires</a></p>
 <h1>📘 Classes — {{ annee['libelle'] }}</h1>
-<form method="post" class="inline-form">
-  <input type="text" name="nom" placeholder="ex. 3e B" required>
-  <select name="systeme_periode">
+<form method="post" class="d-flex flex-wrap gap-2 mb-3">
+  <input type="text" class="form-control" style="max-width: 14rem;" name="nom" placeholder="ex. 3e B" required>
+  <select class="form-select" style="max-width: 12rem;" name="systeme_periode">
     {% for valeur, libelle in systemes.items() %}
     <option value="{{ valeur }}">{{ libelle }}</option>
     {% endfor %}
   </select>
-  <button type="submit">➕ Ajouter une classe</button>
+  <button type="submit" class="btn btn-primary">➕ Ajouter une classe</button>
 </form>
-<ul class="list">
+<ul class="list-group">
   {% for classe in classes %}
-  <li>
-    <a href="{{ url_for('classes.gerer', classe_id=classe['id']) }}">📘 {{ classe['nom'] }}</a>
-    <span class="muted">{{ systemes[classe['systeme_periode']] }}</span>
+  <li class="list-group-item d-flex align-items-center gap-2">
+    <a href="{{ url_for('classes.gerer', classe_id=classe['id']) }}" class="flex-grow-1">
+      📘 {{ classe['nom'] }}
+      <span class="text-body-secondary small">{{ systemes[classe['systeme_periode']] }}</span>
+    </a>
     <form method="post" action="{{ url_for('classes.supprimer', classe_id=classe['id']) }}"
-          class="inline-form"
           onsubmit="return confirm('Supprimer cette classe et tout son contenu ?');">
-      <button type="submit" class="danger">Supprimer</button>
+      <button type="submit" class="btn btn-outline-danger">Supprimer</button>
     </form>
   </li>
   {% else %}
-  <li class="empty">Aucune classe pour cette année.</li>
+  <li class="list-group-item text-body-secondary">Aucune classe pour cette année.</li>
   {% endfor %}
 </ul>
 {% endblock %}
