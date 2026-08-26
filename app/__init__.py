@@ -42,7 +42,17 @@ def create_app() -> Flask:
 
     @app.context_processor
     def inject_globals():
-        return {"store_unlocked": store.is_unlocked(), "mise_a_jour": update_checker.etat()}
+        annee_courante = None
+        if store.is_unlocked():
+            row = store.get_conn().execute(
+                "SELECT libelle FROM annee_scolaire ORDER BY libelle DESC LIMIT 1"
+            ).fetchone()
+            annee_courante = row["libelle"] if row else None
+        return {
+            "store_unlocked": store.is_unlocked(),
+            "mise_a_jour": update_checker.etat(),
+            "annee_courante": annee_courante,
+        }
 
     return app
 

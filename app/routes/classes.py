@@ -45,6 +45,9 @@ def carnet(classe_id):
         "SELECT * FROM classe WHERE annee_scolaire_id = ? ORDER BY nom",
         (classe["annee_scolaire_id"],),
     ).fetchall()
+    annees_toutes = conn.execute(
+        "SELECT * FROM annee_scolaire ORDER BY libelle DESC"
+    ).fetchall()
 
     periodes_disponibles = periodes.periodes_pour(classe["systeme_periode"])
     periode_defaut = periodes.periode_par_defaut(conn, classe)
@@ -135,6 +138,7 @@ def carnet(classe_id):
         "classe_carnet.html",
         classe=classe,
         classes_annee=classes_annee,
+        annees_toutes=annees_toutes,
         periodes_disponibles=periodes_disponibles,
         periode=periode,
         periode_defaut=periode_defaut,
