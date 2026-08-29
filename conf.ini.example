@@ -1,0 +1,13 @@
+# Copier ce fichier en conf.ini (à côté de lui) pour personnaliser la
+# configuration locale. conf.ini n'est jamais versionné (voir .gitignore) :
+# chaque machine peut avoir sa propre configuration.
+
+[speednote]
+
+# Dossier contenant la base chiffrée (speednote.db.enc) et la clé secrète.
+# Par défaut : le dossier data/ à côté de l'application. Décommenter et
+# adapter pour le déplacer ailleurs (disque externe, dossier synchronisé...).
+# Ce réglage doit rester identique à chaque démarrage, sinon l'application
+# ne retrouve pas la base existante et se comporte comme une première
+# installation.
+# data_dir = /chemin/vers/un/autre/dossier

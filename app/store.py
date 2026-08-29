@@ -4,6 +4,7 @@ La base ne réside jamais en clair sur le disque : seule une version chiffrée
 (app.crypto) est écrite, après chaque modification, dans data/speednote.db.enc.
 """
 
+import configparser
 import os
 import sqlite3
 import threading
@@ -14,7 +15,29 @@ from typing import Optional
 from . import crypto
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-DATA_DIR = BASE_DIR / "data"
+CONF_PATH = BASE_DIR / "conf.ini"
+
+
+def _load_config() -> configparser.ConfigParser:
+    parser = configparser.ConfigParser()
+    if CONF_PATH.exists():
+        parser.read(CONF_PATH, encoding="utf-8")
+    return parser
+
+
+def _resolve_data_dir() -> Path:
+    """Répertoire contenant la base chiffrée et la clé secrète. Par défaut
+    data/ à côté de l'application, mais peut être déplacé (ex. clé USB,
+    dossier synchronisé) via `data_dir` dans conf.ini (section
+    [speednote]) — pratique quand data/ ne doit pas rester sur le disque
+    interne de la machine. Voir conf.ini.example."""
+    override = _load_config().get("speednote", "data_dir", fallback="").strip()
+    if override:
+        return Path(override).expanduser().resolve()
+    return BASE_DIR / "data"
+
+
+DATA_DIR = _resolve_data_dir()
 DB_ENC_PATH = DATA_DIR / "speednote.db.enc"
 DB_BAK_PATH = DATA_DIR / "speednote.db.enc.bak"
 SCHEMA_PATH = Path(__file__).resolve().parent / "schema.sql"

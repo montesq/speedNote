@@ -60,6 +60,22 @@ bin/arreter-speednote.sh    # arrête l'application
 Le PID du processus et ses logs sont dans `run/` (créé automatiquement, non
 versionné).
 
+### Déplacer le dossier de données
+
+Par défaut, la base chiffrée et la clé secrète vivent dans `data/`, à côté de
+l'application. Pour les stocker ailleurs (un disque externe, un dossier
+synchronisé…), copier `conf.ini.example` en `conf.ini` (à la racine du
+projet, jamais versionné) et y renseigner `data_dir` :
+
+```ini
+[speednote]
+data_dir = /chemin/vers/un/autre/dossier
+```
+
+Ce réglage doit rester identique à chaque démarrage — sinon l'application ne
+retrouve pas la base existante et se comporte comme une première
+installation.
+
 ### Réinstaller les raccourcis du Bureau (si besoin)
 
 ```bash
