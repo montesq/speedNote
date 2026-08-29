@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 from flask import Flask, redirect, request, url_for
 
@@ -9,6 +10,7 @@ def create_app() -> Flask:
     app = Flask(__name__)
     app.config["SECRET_KEY"] = _load_or_create_secret_key()
     app.config["MAX_CONTENT_LENGTH"] = 20 * 1024 * 1024  # 20 Mo (sujet joint, enregistrement vocal)
+    app_version = _lire_version()
 
     from .routes.accueil import bp as accueil_bp
     from .routes.annees import bp as annees_bp
@@ -54,9 +56,18 @@ def create_app() -> Flask:
             "store_unlocked": store.is_unlocked(),
             "mise_a_jour": update_checker.etat(),
             "annee_courante": annee_courante,
+            "app_version": app_version,
         }
 
     return app
+
+
+def _lire_version() -> str:
+    version_file = Path(__file__).resolve().parent.parent / "VERSION"
+    try:
+        return version_file.read_text().strip()
+    except FileNotFoundError:
+        return "0"
 
 
 def _load_or_create_secret_key() -> bytes:
