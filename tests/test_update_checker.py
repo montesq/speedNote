@@ -89,6 +89,17 @@ def test_aucune_mise_a_jour_si_seul_le_local_est_en_avance(clone_pointe):
     assert update_checker.etat() == {"disponible": False, "resume": None, "erreur": None}
 
 
+def test_erreur_explicite_si_pas_de_branche_amont(clone_pointe):
+    # simule un clone sans suivi de branche configuré (git clone --no-tags
+    # ou checkout manuel sans --track) : @{u} ne se résout pas.
+    _git(clone_pointe["clone"], "branch", "--unset-upstream", "main")
+
+    update_checker._verifier_une_fois()
+    etat = update_checker.etat()
+    assert etat["disponible"] is False
+    assert "amont" in etat["erreur"]
+
+
 def test_depot_git_absent_ne_plante_pas(tmp_path, monkeypatch):
     monkeypatch.setattr(update_checker, "BASE_DIR", tmp_path)  # pas un dépôt git
     update_checker._verifier_une_fois()

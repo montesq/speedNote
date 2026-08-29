@@ -31,23 +31,39 @@ def _executer(cmd, timeout=30) -> subprocess.CompletedProcess:
     )
 
 
+def _echouer(message: str) -> None:
+    global _etat
+    print(f"[update_checker] {message}", flush=True)
+    with _lock:
+        _etat = {"disponible": False, "resume": None, "erreur": message}
+
+
 def _verifier_une_fois() -> None:
     global _etat
     try:
         fetch = _executer(["git", "fetch", "origin"], timeout=20)
         if fetch.returncode != 0:
-            with _lock:
-                _etat = {"disponible": False, "resume": None, "erreur": "Impossible de vérifier les mises à jour (réseau ?)."}
+            _echouer(
+                "Impossible de vérifier les mises à jour (réseau ?) : "
+                + (fetch.stderr.strip() or "erreur inconnue")
+            )
             return
 
-        distant = _executer(["git", "rev-parse", "@{u}"]).stdout.strip()
+        amont = _executer(["git", "rev-parse", "@{u}"])
+        if amont.returncode != 0:
+            _echouer(
+                "Aucune branche amont configurée : impossible de vérifier les mises à jour "
+                "(git rev-parse @{u} : " + (amont.stderr.strip() or "erreur inconnue") + ")."
+            )
+            return
+
         # Nombre de commits présents en amont mais absents du HEAD local :
         # seul ce cas (amont en avance) correspond à une mise à jour
         # disponible. Une simple comparaison de hash déclencherait aussi
         # une fausse alerte quand c'est le local qui est en avance (commits
         # non poussés).
         nb_en_retard = _executer(["git", "rev-list", "--count", "HEAD..@{u}"]).stdout.strip()
-        if not distant or nb_en_retard in ("", "0"):
+        if nb_en_retard in ("", "0"):
             with _lock:
                 _etat = {"disponible": False, "resume": None, "erreur": None}
             return
@@ -56,8 +72,7 @@ def _verifier_une_fois() -> None:
         with _lock:
             _etat = {"disponible": True, "resume": resume, "erreur": None}
     except Exception as exc:
-        with _lock:
-            _etat = {"disponible": False, "resume": None, "erreur": str(exc)}
+        _echouer(str(exc))
 
 
 def etat() -> dict:
