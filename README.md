@@ -24,8 +24,15 @@ classe et devoir.
 
 ## Installation
 
+Toujours installer via `git clone` — jamais en téléchargeant puis
+décompressant le zip GitHub. La vérification automatique des mises à jour
+(voir [Mises à jour](#mises-à-jour) plus bas) s'appuie sur le dépôt git
+présent dans le dossier ; sans lui (cas d'un zip décompressé à la main),
+elle échoue silencieusement et l'application ne se met jamais à jour.
+
 ```bash
 sudo apt install ffmpeg   # nécessaire pour le commentaire vocal
+git clone https://github.com/montesq/speedNote.git ~/Dev/SpeedNote
 cd ~/Dev/SpeedNote
 python3 -m venv venv
 venv/bin/pip install -r requirements.txt
