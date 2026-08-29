@@ -31,6 +31,7 @@ python3 -m venv venv
 venv/bin/pip install -r requirements.txt
 ./scripts/download_vosk_model.sh   # modèle de reconnaissance vocale (~41 Mo, une seule fois)
 ./scripts/download_llm_model.sh    # modèle de synthèse pour le bilan élève (~770 Mo, une seule fois)
+bin/installer-raccourcis.sh        # installe les raccourcis du menu et du Bureau
 ```
 
 ## Utilisation au quotidien (raccourcis)
@@ -79,13 +80,12 @@ installation.
 ### Réinstaller les raccourcis du Bureau (si besoin)
 
 ```bash
-cd ~/Dev/SpeedNote
-cp speednote-demarrer.desktop speednote-arreter.desktop ~/.local/share/applications/
-cp speednote-demarrer.desktop speednote-arreter.desktop ~/Bureau/
-chmod +x ~/Bureau/speednote-*.desktop ~/.local/share/applications/speednote-*.desktop
-gio set ~/Bureau/speednote-demarrer.desktop "metadata::trusted" true
-gio set ~/Bureau/speednote-arreter.desktop "metadata::trusted" true
+bin/installer-raccourcis.sh
 ```
+
+Ce script génère les fichiers `.desktop` avec le chemin absolu du projet (peu
+importe où il a été cloné) et les installe dans le menu d'applications ainsi
+que sur le Bureau.
 
 ## Sauvegardes
 
