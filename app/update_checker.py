@@ -40,9 +40,14 @@ def _verifier_une_fois() -> None:
                 _etat = {"disponible": False, "resume": None, "erreur": "Impossible de vérifier les mises à jour (réseau ?)."}
             return
 
-        local = _executer(["git", "rev-parse", "HEAD"]).stdout.strip()
         distant = _executer(["git", "rev-parse", "@{u}"]).stdout.strip()
-        if not distant or local == distant:
+        # Nombre de commits présents en amont mais absents du HEAD local :
+        # seul ce cas (amont en avance) correspond à une mise à jour
+        # disponible. Une simple comparaison de hash déclencherait aussi
+        # une fausse alerte quand c'est le local qui est en avance (commits
+        # non poussés).
+        nb_en_retard = _executer(["git", "rev-list", "--count", "HEAD..@{u}"]).stdout.strip()
+        if not distant or nb_en_retard in ("", "0"):
             with _lock:
                 _etat = {"disponible": False, "resume": None, "erreur": None}
             return

@@ -78,6 +78,17 @@ def test_detecte_une_mise_a_jour_disponible(clone_pointe):
     assert etat["erreur"] is None
 
 
+def test_aucune_mise_a_jour_si_seul_le_local_est_en_avance(clone_pointe):
+    # commit local jamais poussé : le hash local diffère de l'amont, mais
+    # c'est le local qui est en avance, pas l'amont — pas de mise à jour.
+    (clone_pointe["clone"] / "local.txt").write_text("modification locale")
+    _git(clone_pointe["clone"], "add", "local.txt")
+    _git(clone_pointe["clone"], "commit", "-q", "-m", "commit local non poussé")
+
+    update_checker._verifier_une_fois()
+    assert update_checker.etat() == {"disponible": False, "resume": None, "erreur": None}
+
+
 def test_depot_git_absent_ne_plante_pas(tmp_path, monkeypatch):
     monkeypatch.setattr(update_checker, "BASE_DIR", tmp_path)  # pas un dépôt git
     update_checker._verifier_une_fois()
