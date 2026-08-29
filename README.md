@@ -151,6 +151,17 @@ apporté par une mise à jour n'est pas migré automatiquement (voir la
 gestion des changements de schéma plus bas). À garder en tête avant de
 déployer une mise à jour de ce type sur la machine de production.
 
+## Développement : numéro de version
+
+Le fichier `VERSION` est incrémenté automatiquement à chaque commit par un
+hook git (`.githooks/pre-commit`), et exposé dans le `<head>` de chaque page
+(`<meta name="speednote-version">`, invisible dans l'interface). À activer
+une seule fois par clone :
+
+```bash
+git config core.hooksPath .githooks
+```
+
 ## Développement : jeu de données de test
 
 Pour explorer l'application sans repasser par l'assistant de configuration à
